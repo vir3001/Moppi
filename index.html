@@ -133,7 +133,7 @@
       <form class="route-builder" id="routeForm">
         <div class="place-field"><label for="originSelect">Desde</label><select id="originSelect"></select></div>
         <div class="place-field"><label for="destinationSelect">Hasta</label><select id="destinationSelect"></select></div>
-        <div class="time-row"><div class="place-field"><label for="routeTimeMode">Cuándo</label><select id="routeTimeMode"><option value="NOW">Ahora</option><option value="DEPART_AT" selected>Salir a las…</option><option value="ARRIVE_BY">Llegar a las…</option></select></div><div class="place-field" id="routeTimeField"><label for="routeTimeInput">Hora</label><input id="routeTimeInput" type="time" value="13:00"></div></div>
+        <div class="time-row"><div class="place-field"><label for="routeTimeMode">Cuándo</label><select id="routeTimeMode"><option value="NOW">Ahora</option><option value="DEPART_AT" selected>Salir a las…</option><option value="ARRIVE_BY">Llegar a las…</option></select></div><div class="place-field" id="routeTimeField"><label for="routeTimeInput">Hora</label><input id="routeTimeInput" type="time" value="13:00" data-time-required></div></div>
         <div class="action-row"><button type="button" class="ghost-action" id="searchDestination">Buscar otro lugar</button><button type="button" class="ghost-action" id="swapRoute">Invertir</button></div>
         <button class="route-submit" id="calculateRoute" type="submit">Comparar opciones</button>
       </form>
@@ -171,7 +171,7 @@
       <div class="hero"><div class="eyebrow">Control y privacidad</div><h1 id="settingsTitle">Ajustes</h1><p class="lede">Credenciales sólo en este dispositivo; diagnósticos sin secretos.</p></div>
       <div class="settings-list">
         <section class="settings-group" id="serviceKeysGroup"><strong>Servicios conectados</strong><p class="hint" id="serviceKeysStatus"></p><p class="hint">Se conectan solos al restaurar una copia de Moppi (Viaje › Restaurar copia). No hace falta escribir ninguna clave.</p></section>
-        <section class="settings-group"><label for="previewTime">Hora lógica de previsualización</label><input id="previewTime" type="time" value="13:00"><p class="hint">Las consultas usan una fecha actualmente soportada con esta hora local; no se presentan como horario garantizado de 2027.</p></section>
+        <section class="settings-group"><label for="previewTime">Hora lógica de previsualización</label><input id="previewTime" type="time" value="13:00" data-time-required><p class="hint">Las consultas usan una fecha actualmente soportada con esta hora local; no se presentan como horario garantizado de 2027.</p></section>
         <section class="settings-group"><div class="toggle"><div><strong>Apoyo multifuentе</strong><p class="hint">TripGo y Google agregan transbordos, validación, geometría y métricas. El GTFS oficial conserva el universo de líneas directas.</p></div><input id="multiSourceToggle" type="checkbox" checked aria-label="Activar apoyo de planners externos"></div></section>
         <section class="settings-group"><div class="toggle"><div><strong>Simular modo sin conexión</strong><p class="hint">Agenda y datos siguen disponibles; rutas online quedan pausadas.</p></div><input id="offlineToggle" type="checkbox" aria-label="Simular modo sin conexión"></div></section>
         <section class="settings-group" id="installAppGroup"><strong>Instalar la app</strong><p class="hint" id="pwaStatus">La instalación se habilita al abrir esta versión desde HTTPS.</p><div class="action-row"><button class="secondary-action" id="installApp" hidden>Instalar en este teléfono</button></div></section>
@@ -205,6 +205,80 @@
 <script>window.__VIAJE_GTFS_CATALOGS__=Object.freeze([]);</script>
 <script type="application/json" id="moppiSeedTrip">null</script>
 <script type="application/json" id="moppiTripUpdates">[]</script>
+<style id="moppiTimeFieldStyle">
+.time-field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.time-meridiem{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border:1px solid var(--line,#ccd5d1);border-radius:14px;overflow:hidden;background:#faf9f5}
+.time-meridiem button{min-height:44px;border:0;margin:0;background:transparent;color:var(--ink,#18312d);font:inherit;font-size:15px;font-weight:800;letter-spacing:.04em}
+.time-meridiem button+button{border-left:1px solid var(--line,#ccd5d1)}
+.time-meridiem button[aria-pressed="true"]{background:#18312d;color:#fff}
+.time-field-error{margin:0;font-size:13px;line-height:1.35;color:#8a3f31}
+input[data-time-field][aria-invalid="true"]{border-color:#b4462f}
+.place-field .time-meridiem{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.28)}
+.place-field .time-meridiem button{color:#fff}
+.place-field .time-meridiem button+button{border-left-color:rgba(255,255,255,.28)}
+.place-field .time-meridiem button[aria-pressed="true"]{background:#fff;color:#18312d}
+.place-field .time-field-error{color:#ffd2c4}
+</style>
+<script id="moppiTimeFieldScript">
+/* CAMPOS DE HORA · reemplaza el reloj del teléfono (que con 3 marcaba 3 AM) por un campo para escribir la hora
+   con el teclado numérico y dos botones AM | PM. El valor queda siempre en 24 horas (HH:MM), como lo lee la app. */
+(()=>{'use strict';
+  const native=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value');
+  const pad=n=>String(n).padStart(2,'0'),valid=v=>/^([01]\d|2[0-3]):[0-5]\d$/.test(String(v||''));
+  function parse(text){
+    let s=String(text||'').trim().toLowerCase().replace(/\s+/g,'');
+    if(!s)return{empty:true};
+    let meridiem=null;const m=s.match(/(a\.?m\.?|p\.?m\.?)$/);if(m){meridiem=m[1][0]==='p'?'pm':'am';s=s.slice(0,-m[1].length)}
+    s=s.replace(/(hs|h)$/,'');
+    let h,min;const sep=s.match(/^(\d{1,2})[:.,h](\d{2})$/);
+    if(sep){h=+sep[1];min=+sep[2]}else if(/^\d{1,4}$/.test(s)){if(s.length<=2){h=+s;min=0}else{h=+s.slice(0,-2);min=+s.slice(-2)}}else return{invalid:true};
+    if(meridiem){if(h<1||h>12)return{invalid:true};if(meridiem==='pm'&&h<12)h+=12;if(meridiem==='am'&&h===12)h=0}
+    if(h>23||min>59)return{invalid:true};
+    return{value:`${pad(h)}:${pad(min)}`};
+  }
+  function toggle(value,to){if(!valid(value))return value;let h=+value.slice(0,2);const min=value.slice(3);if(to==='pm'&&h<12)h+=12;if(to==='am'&&h>=12)h-=12;return`${pad(h)}:${min}`}
+  function enhance(input){
+    if(!(input instanceof HTMLInputElement)||input.dataset.timeField)return;
+    input.dataset.timeField='1';
+    const required=input.hasAttribute('data-time-required');
+    input.type='text';input.setAttribute('inputmode','numeric');input.setAttribute('autocomplete','off');input.setAttribute('maxlength','8');
+    if(!input.getAttribute('placeholder'))input.setAttribute('placeholder','15:30');
+    const wrap=document.createElement('div');wrap.className='time-field';
+    const group=document.createElement('div');group.className='time-meridiem';group.setAttribute('role','group');group.setAttribute('aria-label','Mañana o tarde');
+    const am=document.createElement('button'),pm=document.createElement('button');
+    am.type='button';pm.type='button';am.textContent='AM';pm.textContent='PM';am.setAttribute('aria-label','AM, antes del mediodía');pm.setAttribute('aria-label','PM, después del mediodía');
+    am.dataset.meridiem='am';pm.dataset.meridiem='pm';group.append(am,pm);
+    const hint=document.createElement('p');hint.className='time-field-error';hint.hidden=true;hint.setAttribute('role','status');
+    input.parentNode.insertBefore(wrap,input);wrap.append(input,group,hint);
+    const refresh=()=>{const v=native.get.call(input),ok=valid(v),h=ok?+v.slice(0,2):-1;am.setAttribute('aria-pressed',String(ok&&h<12));pm.setAttribute('aria-pressed',String(ok&&h>=12))};
+    const clearError=()=>{delete input.dataset.timeError;input.removeAttribute('aria-invalid');hint.hidden=true};
+    Object.defineProperty(input,'value',{configurable:true,get(){return native.get.call(this)},set(v){const before=native.get.call(this);native.set.call(this,v);if(String(v??'')!==before)clearError();refresh()}});
+    let previous=valid(native.get.call(input))?native.get.call(input):'',typed=false;
+    input.addEventListener('focus',()=>{const v=native.get.call(input);if(valid(v)||!v)previous=v});
+    input.addEventListener('input',()=>{typed=true;clearError();const r=parse(native.get.call(input)),h=r.value?+r.value.slice(0,2):-1;am.setAttribute('aria-pressed',String(h>=0&&h<12));pm.setAttribute('aria-pressed',String(h>=12))});
+    input.__moppiNormalize=()=>{
+      const text=native.get.call(input),r=parse(text);
+      if(r.value){if(r.value!==text)native.set.call(input,r.value);if(typed||!input.dataset.timeError)clearError();typed=false;refresh();previous=r.value;return true}
+      if(r.empty&&!required){clearError();refresh();previous='';return true}
+      if(required&&previous){native.set.call(input,previous);refresh()}
+      typed=false;input.dataset.timeError='1';input.setAttribute('aria-invalid','true');hint.textContent=r.empty?'Falta la hora. Escríbela así: 15:30':'No entendí esa hora. Escríbela así: 15:30';hint.hidden=false;
+      return required&&!!previous;
+    };
+    input.addEventListener('blur',()=>input.__moppiNormalize());
+    const choose=to=>{input.__moppiNormalize();const v=native.get.call(input);if(!valid(v)){input.focus();return}const next=toggle(v,to);if(next!==v){native.set.call(input,next);previous=next;input.dispatchEvent(new Event('input',{bubbles:true}));input.dispatchEvent(new Event('change',{bubbles:true}))}refresh()};
+    am.addEventListener('click',()=>choose('am'));pm.addEventListener('click',()=>choose('pm'));
+    refresh();
+  }
+  // Antes que cualquier otro manejador: el valor ya llega normalizado (15:00) a la app
+  document.addEventListener('change',event=>{const t=event.target;if(t instanceof HTMLInputElement&&t.__moppiNormalize)t.__moppiNormalize()},true);
+  // Un formulario con una hora que no se entiende no se guarda: se avisa en el campo
+  document.addEventListener('submit',event=>{const form=event.target;if(!(form instanceof HTMLFormElement))return;const bad=[...form.querySelectorAll('input[data-time-field]')].filter(input=>!input.__moppiNormalize());if(bad.length){event.preventDefault();event.stopImmediatePropagation();bad[0].focus()}},true);
+  const scan=root=>{if(root.matches?.('input[type="time"]'))enhance(root);root.querySelectorAll?.('input[type="time"]').forEach(enhance)};
+  scan(document);
+  new MutationObserver(records=>{for(const record of records)for(const node of record.addedNodes)if(node.nodeType===1)scan(node)}).observe(document.documentElement,{childList:true,subtree:true});
+  window.MoppiTimeField=Object.freeze({parse,toggle,enhance});
+})();
+</script>
 <script>
 (()=>{
 'use strict';
@@ -269,7 +343,7 @@ const CatalogStore={dbName:'moppi',storeName:'catalogs',
   async all(){return unique([...this.embedded(),...await this.stored()],item=>item.id)},
   async importCatalogs(items){const valid=list(items).filter(item=>this.valid(item));if(!valid.length)throw new ProviderError('INVALID_CATALOG','El archivo no trae horarios oficiales válidos.');let db;try{db=await this.open()}catch{throw new ProviderError('STORAGE','Este navegador no permite guardar horarios oficiales.')}await new Promise((resolve,reject)=>{const tx=db.transaction(this.storeName,'readwrite');for(const item of valid)tx.objectStore(this.storeName).put(JSON.parse(JSON.stringify(item)));tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||new Error('IDB'))}).catch(()=>{throw new ProviderError('STORAGE','No hubo lugar para guardar los horarios oficiales en este teléfono.')});return{count:valid.length,operators:unique(valid.map(item=>clean(item.operator)||clean(item.label)||'operador'))}}};
 const AppConfig=Object.freeze({
-  version:'V1.9.1_SIN_CLAVES',get timeZone(){return RuntimeZone.value||deviceTimeZone()},locale:'es-UY',tripStorageKey:'moppi.trips.v1',trip:{departureMarginMinutes:20},serviceDate:'2026-09-13',
+  version:'V1.9.2_HORA',get timeZone(){return RuntimeZone.value||deviceTimeZone()},locale:'es-UY',tripStorageKey:'moppi.trips.v1',trip:{departureMarginMinutes:20},serviceDate:'2026-09-13',
   mapillary:{get clientToken(){return KeyStore.get('mapillary')},searchRadiusMeters:35,maxCorridorMeters:25,maxCurrentMeters:220,maxCurrentNoGeometryMeters:60,limit:60,maxImages:5,minSpacingMeters:10,queryTimeoutMs:9000,imageTimeoutMs:15000},
   tripgo:{get apiKey(){return KeyStore.get('tripgo')},attribution:'Powered by TripGo'},providerDates:{maxFutureDays:28},
   discovery:{originRadiusKm:.65,destinationRadiusKm:.8,maxOriginStops:30,maxDestinationStops:30,horizonMinutes:120,walkingMetersPerSecond:1.15,walkDetourFactor:1.25,boardingBufferSeconds:35,walkMatrixBatchSize:25,requestTimeoutMs:14000},
@@ -1778,6 +1852,7 @@ function runSelfTests(){
   test('Integridad: sin ciudades, lugares ni noches rotas',()=>{const trip=normalizeTrip({id:'t',title:'T',cities:[{id:'a',name:'A',from:'2027-01-01',to:'2027-01-03',places:[{id:'p',name:'P',location:{lat:1,lng:1}}]}],bookings:[{id:'h',type:'lodging',title:'H',cityId:'zz',placeId:'p',startDate:'2027-01-01',endDate:'2027-01-03'},{id:'k',type:'lodging',title:'K',cityId:'a',placeId:'nope',startDate:'2027-01-01',endDate:'2027-01-02'}],nights:{'2027-01-01':'gone','2027-01-02':'k'}}),h=trip.bookings.find(item=>item.id==='h'),k=trip.bookings.find(item=>item.id==='k');return h.cityId===null&&h.placeId===null&&k.cityId==='a'&&k.placeId===null&&Object.keys(trip.nights).length===0});
   test('Completar un viaje anterior una sola vez',()=>{const trip=normalizeTrip({id:'v',title:'V',cities:[{id:'c1',name:'Tirano',from:'2027-01-01',to:'2027-01-02'}]}),updates=[{id:'u1',tripId:'v',addBookings:[{id:'b1',type:'lodging',title:'H',cityId:'tirano',cityName:'Tirano',startDate:'2027-01-01',endDate:'2027-01-02'}]},{id:'u2',tripId:'otro',addBookings:[{id:'b2',type:'other',title:'X',startDate:'2027-01-01'}]}],first=applyTripUpdates(trip,updates),placed=trip.bookings[0]?.cityId,clean1=!('cityName' in (trip.bookings[0]||{}));trip.bookings=[];const second=applyTripUpdates(trip,updates);return first&&placed==='c1'&&clean1&&!second&&trip.bookings.length===0&&trip.appliedUpdates.join()==='u1'});
   test('Claves: formato válido y el programa no trae claves',()=>KeyStore.valid('tripgo','abcdefghijklmnop0123')&&!KeyStore.valid('tripgo','corta')&&KeyStore.valid('mapillary','MLY|123456789|abcdef')&&!KeyStore.valid('mapillary','123')&&!/MLY\|\d{10,}|[0-9a-f]{32}/.test(String(Object.getOwnPropertyDescriptor(AppConfig.tripgo,'apiKey').get)+String(Object.getOwnPropertyDescriptor(AppConfig.mapillary,'clientToken').get)));
+  test('Campos de hora: 1500 da 15:00, 3 con PM da 15:00, 25:00 no vale y no queda el reloj del teléfono',()=>!!window.MoppiTimeField&&MoppiTimeField.parse('1500').value==='15:00'&&MoppiTimeField.parse('3 pm').value==='15:00'&&MoppiTimeField.toggle('03:00','pm')==='15:00'&&MoppiTimeField.toggle('15:00','am')==='03:00'&&MoppiTimeField.toggle('12:30','am')==='00:30'&&MoppiTimeField.parse('9').value==='09:00'&&MoppiTimeField.parse('25:00').invalid===true&&MoppiTimeField.parse('7:75').invalid===true&&!document.querySelector('input[type="time"]'));
   test('La app no pide claves: sin pantalla de bloqueo ni campos para pegarlas',()=>!document.getElementById('demoKeyGate')&&!document.querySelector('#googleKey,#tripgoKeyInput,#mapillaryKeyInput,#saveGoogleKey,#saveServiceKeys'));
   test('Horarios oficiales: se acepta un catálogo completo y se rechaza uno incompleto',()=>CatalogStore.valid({id:'x',serviceDate:'2027-01-01',bounds:{minLat:1,maxLat:2,minLng:1,maxLng:2},timetable:'a'.repeat(200),stops:'b'.repeat(20)})&&!CatalogStore.valid({id:'x',serviceDate:'2027-01-01',bounds:{minLat:1},timetable:'a'})&&!CatalogStore.valid({id:'',serviceDate:'x'}));
   test('Quitar un dato genérico solo si nadie lo editó',()=>{const make=name=>normalizeTrip({id:'v',title:'V',cities:[{id:'r',name:'Roma',from:'2027-01-01',to:'2027-01-03',homeId:'g',places:[{id:'g',name,address:'Roma',kind:'home',location:{lat:1,lng:2}}],agenda:{'2027-01-01':{events:[{id:'e',time:'10:00',title:'Llegar',placeId:'g'}]}}}]}),update=[{id:'u',tripId:'v',removePlaces:[{cityId:'r',placeId:'g',ifUnchanged:{name:'Genérico',address:'Roma',lat:1,lng:2}}]}],a=make('Genérico'),b=make('Mi hotel');applyTripUpdates(a,update);applyTripUpdates(b,update);return a.cities[0].places.length===0&&a.cities[0].homeId===null&&a.cities[0].agenda['2027-01-01'].events[0].placeId===null&&b.cities[0].places.length===1&&a.appliedUpdates.includes('u')&&b.appliedUpdates.includes('u')});
