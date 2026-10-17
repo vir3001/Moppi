@@ -279,6 +279,16 @@ input[data-time-field][aria-invalid="true"]{border-color:#b4462f}
   window.MoppiTimeField=Object.freeze({parse,toggle,enhance});
 })();
 </script>
+<style id="shareStyle">
+/* V1.9.4 · viaje compartido */
+.share-box{margin-top:14px}
+.share-box>strong{display:block;margin-bottom:4px}
+.share-box .hint{margin:4px 0}
+.share-box .trip-tools{margin-top:10px}
+.readonly-sheet .readonly-note{margin:0 0 12px;padding:10px 12px;border-radius:12px;background:#f3efe6;color:#3f3539}
+.readonly-sheet .time-meridiem{display:none!important}
+.readonly-sheet input:disabled,.readonly-sheet select:disabled,.readonly-sheet textarea:disabled{opacity:1;color:inherit;-webkit-text-fill-color:currentColor;background:#f7f5f0}
+</style>
 <script>
 (()=>{
 'use strict';
@@ -329,10 +339,10 @@ const RuntimeZone={value:null};
 const KeyStore={storageKey:'moppi.keys.v1',googleKey:'viaje2027.googleMapsKey.v1',
   read(){try{const value=JSON.parse(localStorage.getItem(this.storageKey)||'{}');return value&&typeof value==='object'?value:{}}catch{return{}}},
   get(name){return clean(this.read()[name])},
-  valid(name,value){const text=clean(value);if(name==='tripgo')return/^[A-Za-z0-9_-]{16,128}$/.test(text);if(name==='mapillary')return/^MLY\|[A-Za-z0-9|_-]{8,200}$/.test(text);if(name==='google')return/^[A-Za-z0-9_-]{20,128}$/.test(text);return false},
+  valid(name,value){const text=clean(value);if(name==='tripgo')return/^[A-Za-z0-9_-]{16,128}$/.test(text);if(name==='mapillary')return/^MLY\|[A-Za-z0-9|_-]{8,200}$/.test(text);if(name==='google')return/^[A-Za-z0-9_-]{20,128}$/.test(text);if(name==='github')return/^(github_pat_[A-Za-z0-9_]{30,255}|ghp_[A-Za-z0-9]{30,255})$/.test(text);return false},
   set(name,value){const all=this.read(),text=clean(value);if(text)all[name]=text;else delete all[name];try{localStorage.setItem(this.storageKey,JSON.stringify(all));return true}catch{return false}},
-  importKeys(keys){let count=0;for(const name of ['tripgo','mapillary'])if(this.valid(name,keys?.[name])&&this.set(name,keys[name]))count++;if(this.valid('google',keys?.google)){try{localStorage.setItem(this.googleKey,clean(keys.google));window.__viajeDemoKey=clean(keys.google);count++}catch{}}return count},
-  summary(){let google=false;try{google=clean(localStorage.getItem(this.googleKey)).length>10}catch{}return{google,tripgo:!!this.get('tripgo'),mapillary:!!this.get('mapillary')}},
+  importKeys(keys){let count=0;for(const name of ['tripgo','mapillary','github'])if(this.valid(name,keys?.[name])&&this.set(name,keys[name]))count++;if(this.valid('google',keys?.google)){try{localStorage.setItem(this.googleKey,clean(keys.google));window.__viajeDemoKey=clean(keys.google);count++}catch{}}return count},
+  summary(){let google=false;try{google=clean(localStorage.getItem(this.googleKey)).length>10}catch{}return{google,tripgo:!!this.get('tripgo'),mapillary:!!this.get('mapillary'),github:this.valid('github',this.get('github'))}},
   exportKeys(){const out={},all=this.read();for(const name of ['tripgo','mapillary'])if(this.valid(name,all[name]))out[name]=clean(all[name]);try{const google=clean(localStorage.getItem(this.googleKey));if(this.valid('google',google))out.google=google}catch{}return out}};
 /* HORARIOS OFICIALES · además de los incluidos en el programa, los que se cargan desde un archivo quedan en este teléfono. */
 const CatalogStore={dbName:'moppi',storeName:'catalogs',
@@ -343,7 +353,7 @@ const CatalogStore={dbName:'moppi',storeName:'catalogs',
   async all(){return unique([...this.embedded(),...await this.stored()],item=>item.id)},
   async importCatalogs(items){const valid=list(items).filter(item=>this.valid(item));if(!valid.length)throw new ProviderError('INVALID_CATALOG','El archivo no trae horarios oficiales válidos.');let db;try{db=await this.open()}catch{throw new ProviderError('STORAGE','Este navegador no permite guardar horarios oficiales.')}await new Promise((resolve,reject)=>{const tx=db.transaction(this.storeName,'readwrite');for(const item of valid)tx.objectStore(this.storeName).put(JSON.parse(JSON.stringify(item)));tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||new Error('IDB'))}).catch(()=>{throw new ProviderError('STORAGE','No hubo lugar para guardar los horarios oficiales en este teléfono.')});return{count:valid.length,operators:unique(valid.map(item=>clean(item.operator)||clean(item.label)||'operador'))}}};
 const AppConfig=Object.freeze({
-  version:'V1.9.3_SALDO',get timeZone(){return RuntimeZone.value||deviceTimeZone()},locale:'es-UY',tripStorageKey:'moppi.trips.v1',trip:{departureMarginMinutes:20},serviceDate:'2026-09-13',
+  version:'V1.9.4_COMPARTIR',get timeZone(){return RuntimeZone.value||deviceTimeZone()},locale:'es-UY',tripStorageKey:'moppi.trips.v1',trip:{departureMarginMinutes:20},serviceDate:'2026-09-13',
   mapillary:{get clientToken(){return KeyStore.get('mapillary')},searchRadiusMeters:35,maxCorridorMeters:25,maxCurrentMeters:220,maxCurrentNoGeometryMeters:60,limit:60,maxImages:5,minSpacingMeters:10,queryTimeoutMs:9000,imageTimeoutMs:15000},
   tripgo:{get apiKey(){return KeyStore.get('tripgo')},attribution:'Powered by TripGo'},providerDates:{maxFutureDays:28},
   discovery:{originRadiusKm:.65,destinationRadiusKm:.8,maxOriginStops:30,maxDestinationStops:30,horizonMinutes:120,walkingMetersPerSecond:1.15,walkDetourFactor:1.25,boardingBufferSeconds:35,walkMatrixBatchSize:25,requestTimeoutMs:14000},
@@ -548,17 +558,19 @@ class TripStore{
   constructor(storageKey=AppConfig.tripStorageKey,seed=readSeedTrip(),updates=readTripUpdates()){this.key=storageKey;this.seed=seed;this.updates=updates;this.version=0;this.persisted=false;this.persistentStorage=null;this.state=this.load();try{navigator.storage?.persist?.().then(granted=>{this.persistentStorage=!!granted}).catch(()=>{})}catch{}}
   statusSummary(){return{persisted:this.persisted,persistentStorage:this.persistentStorage,seededAt:this.state.seededAt,lastExportAt:this.state.lastExportAt,activeTripId:this.state.activeTripId,trips:this.trips.map(trip=>{const nights=tripNights(trip),byType={};for(const booking of trip.bookings)byType[booking.type]=(byType[booking.type]||0)+1;return{id:trip.id,title:trip.title,updatedAt:trip.updatedAt,cities:trip.cities.map(city=>`${city.name} ${city.from}→${city.to}`),bookings:{total:trip.bookings.length,byType,cancelled:trip.bookings.filter(booking=>booking.status==='cancelled').length,withoutPlace:trip.bookings.filter(booking=>!booking.placeId).length},nights:{total:nights.length,withLodging:nights.filter(night=>night.source!=='none').length,double:nights.filter(night=>night.double).length,manual:nights.filter(night=>night.manual).length},appliedUpdates:[...trip.appliedUpdates]}})}}
   load(){let stored=null;try{stored=JSON.parse(localStorage.getItem(this.key)||'null')}catch{stored=null}const trips=unique(list(stored?.trips).map(normalizeTrip).filter(Boolean),trip=>trip.id);let seeded=false;if(!trips.length&&!stored?.userEmptied){const trip=normalizeTrip(this.seed);if(trip){trips.push(trip);seeded=true}}for(const trip of trips)applyTripUpdates(trip,this.updates);const state={...extrasOf(stored,['schema','activeTripId','trips','lastExportAt','seededAt','userEmptied']),schema:'moppi-trips-v1',activeTripId:trips.some(trip=>trip.id===stored?.activeTripId)?stored.activeTripId:(trips[0]?.id||null),trips,lastExportAt:clean(stored?.lastExportAt)||null,seededAt:seeded?new Date().toISOString():(clean(stored?.seededAt)||null)};if(stored?.userEmptied&&!trips.length)state.userEmptied=true;this.persist(state);return state}
-  persist(state=this.state){this.version++;try{localStorage.setItem(this.key,JSON.stringify(state));this.persisted=true}catch{this.persisted=false}}
+  persist(state=this.state){this.version++;try{localStorage.setItem(this.key,JSON.stringify(state));this.persisted=true}catch{this.persisted=false}try{this.onPersist?.()}catch{}}
   get trips(){return this.state.trips}
   get active(){return this.state.trips.find(trip=>trip.id===this.state.activeTripId)||this.state.trips[0]||null}
   setActive(id){if(!this.trips.some(trip=>trip.id===id))return false;this.state.activeTripId=id;this.persist();return true}
-  update(mutator){const trip=this.active;if(!trip)return null;const result=mutator(trip);sortCities(trip.cities);sortBookings(trip.bookings);repairTripReferences(trip);trip.updatedAt=new Date().toISOString();this.persist();return result}
+  update(mutator){const trip=this.active;if(!trip)return null;if(trip.sharedFrom){try{this.onReadOnly?.(trip)}catch{}return null}const result=mutator(trip);sortCities(trip.cities);sortBookings(trip.bookings);repairTripReferences(trip);trip.updatedAt=new Date().toISOString();this.persist();return result}
   createTrip(title,travellers=[]){const trip=normalizeTrip({id:newId('trip'),title:clean(title)||'Nuevo viaje',travellers,cities:[]});trip.updatedAt=new Date().toISOString();this.state.trips.push(trip);this.state.activeTripId=trip.id;delete this.state.userEmptied;this.persist();return trip}
   deleteTrip(id){this.state.trips=this.trips.filter(trip=>trip.id!==id);if(!this.trips.length)this.state.userEmptied=true;if(!this.trips.some(trip=>trip.id===this.state.activeTripId))this.state.activeTripId=this.trips[0]?.id||null;this.persist()}
-  exportPayload(trip=this.active){const keys=typeof KeyStore!=='undefined'?KeyStore.exportKeys():{};return{schema:'moppi-trip-export-v1',exportedAt:new Date().toISOString(),appVersion:AppConfig.version,trip:JSON.parse(JSON.stringify(trip)),...(Object.keys(keys).length?{keys}:{})}}
+  exportPayload(trip=this.active){const keys=typeof KeyStore!=='undefined'?KeyStore.exportKeys():{};const github=typeof KeyStore!=='undefined'?KeyStore.get('github'):'';if(github&&KeyStore.valid('github',github))keys.github=github;const share=typeof MoppiShare!=='undefined'?MoppiShare.backupFor(trip):null;return{schema:'moppi-trip-export-v1',exportedAt:new Date().toISOString(),appVersion:AppConfig.version,trip:JSON.parse(JSON.stringify(trip)),...(Object.keys(keys).length?{keys}:{}),...(share?{share}:{})}}
   markExported(){this.state.lastExportAt=new Date().toISOString();this.persist()}
   parseImport(text){let payload;try{payload=typeof text==='string'?JSON.parse(text):text}catch{throw new ProviderError('INVALID_TRIP_FILE','El archivo no es una copia de Moppi válida.')}const trip=normalizeTrip(payload?.trip||payload);if(!trip)throw new ProviderError('INVALID_TRIP_FILE','El archivo no contiene un viaje válido.');return trip}
   importTrip(trip,{replace=false}={}){const copy=normalizeTrip(trip);const index=this.trips.findIndex(item=>item.id===copy.id);if(index>=0&&replace)this.state.trips[index]=copy;else{if(index>=0){copy.id=newId('trip');copy.title=`${copy.title} (copia)`}this.state.trips.push(copy)}this.state.activeTripId=copy.id;delete this.state.userEmptied;this.persist();return copy}
+  /* Viaje que llega por un enlace compartido: reemplaza la versión anterior sin pasar por update() (que lo bloquea). */
+  installShared(trip,{activate=false}={}){const copy=normalizeTrip(trip);if(!copy)return null;const index=this.trips.findIndex(item=>item.id===copy.id);if(index>=0)this.state.trips[index]=copy;else this.state.trips.push(copy);if(activate||!this.state.activeTripId)this.state.activeTripId=copy.id;delete this.state.userEmptied;this.persist();return copy}
 }
 
 const EMPTY_CITY=Object.freeze({id:null,name:'Sin ciudades',country:'',from:null,to:null,places:[],days:[],agenda:{},center:null,homeId:null,timeZone:null});
@@ -590,7 +602,7 @@ class DataLayer{
   lodgingNightFor(date=this.selectedDay()?.date,city=this.activeCity){const tonight=this.night(date),last=this.night(addDays(date,-1)),here=night=>!!night&&night.source!=='none'&&night.cityId===city?.id;if(here(tonight))return tonight;if(city?.to===date&&here(last))return last;if(tonight&&tonight.source!=='none')return tonight;if(here(last))return last;return tonight||null}
   /* Desde dónde sales hacia una actividad, un tren o un vuelo: el alojamiento de esa noche o el de la anterior, en la misma ciudad. */
   routeOriginNight(date=this.selectedDay()?.date,city=this.activeCity){const tonight=this.night(date),last=this.night(addDays(date,-1)),here=night=>!!night&&night.source!=='none'&&!!night.placeId&&night.cityId===city?.id;return here(tonight)?tonight:here(last)?last:null}
-  savePlace(place,persist=true){const city=this.rawCity(),normalized=normalizePlace({...place,kind:PLACE_KINDS[place?.kind]?place.kind:'saved'});if(!normalized)return null;if(!city){const canonical=canonicalPlace(normalized);this.state.savedPlaces=unique([...list(this.state.savedPlaces),canonical],item=>item.id);if(persist)this.write();return canonical}this.store.update(trip=>{const target=trip.cities.find(item=>item.id===city.id);if(target&&!target.places.some(item=>item.id===normalized.id))target.places.push(normalized)});return this.place(normalized.id)}
+  savePlace(place,persist=true){const city=this.rawCity(),normalized=normalizePlace({...place,kind:PLACE_KINDS[place?.kind]?place.kind:'saved'});if(!normalized)return null;if(!city||this.store.active?.sharedFrom){const canonical=canonicalPlace(normalized);this.state.savedPlaces=unique([...list(this.state.savedPlaces),canonical],item=>item.id);if(persist)this.write();return canonical}this.store.update(trip=>{const target=trip.cities.find(item=>item.id===city.id);if(target&&!target.places.some(item=>item.id===normalized.id))target.places.push(normalized)});return this.place(normalized.id)}
   applyTimeZone(){RuntimeZone.value=validTimeZone(this.activeCity?.timeZone)}
   selectCity(id){const city=this.dataset.cities.find(item=>item.id===id);if(!city)return;this.state.activeCityId=id;const today=this.todayFor(city);this.state.selectedDay=today>=city.from&&today<=city.to?today:(city.days[0]?.date||city.from);this.write();this.applyTimeZone()}
   resetActiveCity(){this.state.activeCityId=this.defaultCity()?.id||null;this.state.selectedDay=null;this.write();this.applyTimeZone()}
@@ -621,18 +633,19 @@ class TripEditor{
     const trip=this.data.trip,cities=this.data.dataset.cities,active=this.data.activeCity;
     $('tripEyebrow').textContent=trip?[rangeLabel(trip.start,trip.end),`${cities.length} ${cities.length===1?'ciudad':'ciudades'}`].filter(Boolean).join(' · '):'Sin viaje cargado';
     $('tripTitle').textContent=trip?.title||'Crea tu viaje';
-    $('tripLede').textContent=trip?'Ciudades, reservas, alojamientos, lugares y agenda: todo se carga y se edita desde aquí.':'Todavía no hay ningún viaje. Crea uno nuevo o restaura una copia.';
+    const sharedTrip=this.store.active?.sharedFrom?this.store.active:null;$('tripLede').textContent=sharedTrip?MoppiShare.readOnlyText(sharedTrip):trip?'Ciudades, reservas, alojamientos, lugares y agenda: todo se carga y se edita desde aquí.':'Todavía no hay ningún viaje. Crea uno nuevo o restaura una copia.';
     const trips=this.store.trips,lastExport=this.store.state.lastExportAt;
-    $('tripTools').innerHTML=`${trips.length>1?`<div class="settings-group trip-switch"><label for="tripSwitch">Viaje activo</label><select id="tripSwitch">${trips.map(item=>`<option value="${escapeHTML(item.id)}"${item.id===trip?.id?' selected':''}>${escapeHTML(item.title)}</option>`).join('')}</select></div>`:''}<div class="trip-tools">${trip?'<button class="mini-action" data-trip-rename>Renombrar</button>':''}<button class="mini-action" data-trip-new>Nuevo viaje</button>${trip?'<button class="mini-action" data-trip-export>Guardar copia</button>':''}<button class="mini-action" data-trip-import>Restaurar copia</button>${trip?'<button class="mini-action danger" data-trip-delete>Borrar viaje</button>':''}</div><p class="hint trip-backup">${trip?(lastExport?`Última copia guardada: ${new Intl.DateTimeFormat('es',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}).format(new Date(lastExport))}.`:'Todavía no guardaste una copia de este viaje en un archivo.'):''}${this.store.persisted?'':' Este navegador no permite guardar datos: guarda una copia en un archivo.'}</p>`;
+    $('tripTools').innerHTML=`${trips.length>1?`<div class="settings-group trip-switch"><label for="tripSwitch">Viaje activo</label><select id="tripSwitch">${trips.map(item=>`<option value="${escapeHTML(item.id)}"${item.id===trip?.id?' selected':''}>${escapeHTML(item.title)}</option>`).join('')}</select></div>`:''}<div class="trip-tools">${trip&&!sharedTrip?'<button class="mini-action" data-trip-rename>Renombrar</button>':''}<button class="mini-action" data-trip-new>Nuevo viaje</button>${trip?'<button class="mini-action" data-trip-export>Guardar copia</button>':''}<button class="mini-action" data-trip-import>Restaurar copia</button>${trip&&!sharedTrip?'<button class="mini-action danger" data-trip-delete>Borrar viaje</button>':''}</div><p class="hint trip-backup">${trip?(lastExport?`Última copia guardada: ${new Intl.DateTimeFormat('es',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}).format(new Date(lastExport))}.`:'Todavía no guardaste una copia de este viaje en un archivo.'):''}${this.store.persisted?'':' Este navegador no permite guardar datos: guarda una copia en un archivo.'}</p>${trip?'<section class="settings-group share-box" data-share-box></section>':''}`;
     $('tripSwitch')?.addEventListener('change',event=>{this.store.setActive(event.target.value);this.data.resetActiveCity();this.changed(`Viaje activo: ${this.data.trip?.title||''}`)});
     $('tripTools').querySelector('[data-trip-rename]')?.addEventListener('click',()=>this.openTripForm(false));
     $('tripTools').querySelector('[data-trip-new]')?.addEventListener('click',()=>this.openTripForm(true));
     $('tripTools').querySelector('[data-trip-export]')?.addEventListener('click',()=>this.exportTrip());
     $('tripTools').querySelector('[data-trip-import]')?.addEventListener('click',()=>{const input=$('tripImportInput');if(input){input.value='';input.click()}});
     $('tripTools').querySelector('[data-trip-delete]')?.addEventListener('click',()=>this.deleteTrip());
+    MoppiShare.render();
     $('cityList').innerHTML=cities.length?cities.map((city,index)=>`<button class="city-row${city.id===active.id?' active':''}" data-city="${escapeHTML(city.id)}"><span class="city-index">${String(index+1).padStart(2,'0')}</span><span class="city-row-copy"><strong>${escapeHTML(city.name)}</strong><span>${escapeHTML([city.country,rangeLabel(city.from,city.to),`${city.days.length} ${city.days.length===1?'día':'días'}`].filter(Boolean).join(' · '))}</span></span><span>›</span></button>`).join(''):'<p class="lede">Todavía no hay ciudades. Agrega la primera.</p>';
     $('cityList').querySelectorAll('[data-city]').forEach(button=>button.addEventListener('click',()=>this.openCity(button.dataset.city)));
-    if($('addCity'))$('addCity').hidden=!trip;if($('addBooking'))$('addBooking').hidden=!trip;
+    if($('addCity'))$('addCity').hidden=!trip||!!sharedTrip;if($('addBooking'))$('addBooking').hidden=!trip||!!sharedTrip;
     this.renderNightList();this.renderBookingList();
     if(this.view&&$('tripSheet')?.classList.contains('open'))this.renderSheet()
   }
@@ -660,7 +673,9 @@ class TripEditor{
   sheet(eyebrow,title,html){this.destroyPicker();$('tripSheetEyebrow').textContent=eyebrow;$('tripSheetTitle').textContent=title;$('tripSheetBody').innerHTML=html;$('tripSheet').querySelector('.dialog').scrollTop=0}
   askConfirm(options){this.open({type:'confirm',...options})}
   renderConfirm(view){this.sheet(view.eyebrow||'Confirmar',view.title||'¿Seguro?',`<div class="sheet-stack"><section class="settings-group"><p style="margin:0">${escapeHTML(view.text||'')}</p></section><div class="action-row"><button class="${view.safeYes?'primary-action':'danger-action'}" data-confirm-yes>${escapeHTML(view.yesLabel||'Sí')}</button><button class="secondary-action" data-confirm-no>${escapeHTML(view.noLabel||'Cancelar')}</button></div></div>`);this.on('[data-confirm-yes]',()=>view.onYes?.());this.on('[data-confirm-no]',()=>{if(view.onNo)view.onNo();else if(view.back)this.open(view.back);else this.close()})}
-  renderSheet(){const view=this.view;if(!view)return;const renderers={confirm:'renderConfirm',trip:'renderTripForm',city:'renderCity',day:'renderDay',event:'renderEvent',picker:'renderPicker',place:'renderPlace',booking:'renderBooking',night:'renderNight'};const method=renderers[view.type];if(method)this[method](view)}
+  renderSheet(){const view=this.view;if(!view)return;const renderers={confirm:'renderConfirm',trip:'renderTripForm',city:'renderCity',day:'renderDay',event:'renderEvent',picker:'renderPicker',place:'renderPlace',booking:'renderBooking',night:'renderNight'};const method=renderers[view.type];$('tripSheetBody')?.classList.remove('readonly-sheet');if(method)this[method](view);if(view.type!=='confirm'&&this.store.active?.sharedFrom)this.applyReadOnly()}
+  /* Viaje compartido: las fichas se pueden mirar pero no cambiar. */
+  applyReadOnly(){const body=$('tripSheetBody');if(!body)return;body.classList.add('readonly-sheet');body.querySelectorAll('input,select,textarea').forEach(field=>{field.disabled=true});body.querySelectorAll('[type=submit],.danger-action,[data-pick-place],[data-add-night],[data-add-lodging],[data-add-city-booking],[data-add-event],[data-add-day-booking],[data-mark],[data-relocate],[data-use-map],[data-auto],[data-sleep],.time-meridiem').forEach(node=>{node.hidden=true});body.querySelectorAll('[data-edit-place],[data-edit-event],[data-edit-booking]').forEach(button=>{if(/Editar/.test(button.textContent))button.textContent='Ver'});if(!body.querySelector('.readonly-note'))body.insertAdjacentHTML('afterbegin',`<p class="hint readonly-note">${escapeHTML(MoppiShare.readOnlyText(this.store.active))}</p>`)}
   q(selector){return $('tripSheetBody').querySelector(selector)}
   on(selector,handler,eventName='click'){this.q(selector)?.addEventListener(eventName,handler)}
   error(message){const node=this.q('[data-form-error]');if(node){node.textContent=message;node.hidden=false;node.scrollIntoView?.({block:'nearest'})}else this.app.toast(message)}
@@ -669,14 +684,14 @@ class TripEditor{
   renderTripForm(view){const trip=view.isNew?null:this.store.active;this.sheet('Viaje',view.isNew?'Nuevo viaje':'Datos del viaje',`<form class="sheet-stack" data-trip-form><section class="settings-group"><label for="tripFormTitle">Nombre del viaje</label><input id="tripFormTitle" maxlength="80" value="${escapeHTML(trip?.title||'')}" placeholder="Por ejemplo: Vacaciones de invierno"><label for="tripFormTravellers" style="margin-top:12px">Viajeros (opcional, separados por coma)</label><input id="tripFormTravellers" maxlength="160" value="${escapeHTML(list(trip?.travellers).join(', '))}"><p class="form-error" data-form-error hidden></p></section><button class="primary-action" type="submit">${view.isNew?'Crear viaje':'Guardar'}</button></form>`);
     this.on('[data-trip-form]',event=>{event.preventDefault();const title=clean(this.q('#tripFormTitle').value),travellers=clean(this.q('#tripFormTravellers').value).split(',').map(clean).filter(Boolean);if(!title){this.error('Ponle un nombre al viaje.');return}if(view.isNew){this.store.createTrip(title,travellers);this.data.resetActiveCity();this.close();this.changed('Viaje creado. Ahora agrega las ciudades.')}else{this.store.update(item=>{item.title=title;item.travellers=travellers});this.close();this.changed('Viaje actualizado.')}},'submit')}
   deleteTrip(){const trip=this.store.active;if(!trip)return;this.askConfirm({eyebrow:'Viaje',title:'Borrar viaje',text:`¿Borrar el viaje «${trip.title}» de este teléfono? Si no guardaste una copia, se pierde.`,yesLabel:'Sí, borrar el viaje',onYes:()=>{this.store.deleteTrip(trip.id);this.data.resetActiveCity();this.close();this.changed('Viaje borrado.')}})}
-  async exportTrip(){const trip=this.store.active;if(!trip)return;const payload=this.store.exportPayload(trip);try{const catalogs=typeof CatalogStore!=='undefined'?await CatalogStore.stored():[];if(catalogs.length)payload.catalogs=catalogs}catch{}const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),anchor=document.createElement('a');anchor.href=url;anchor.download=`Moppi_${slug(trip.title)||'viaje'}_${zoneDate(new Date(),deviceTimeZone())}.json`;document.body.appendChild(anchor);anchor.click();anchor.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);this.store.markExported();this.render();this.app.toast(payload.keys?'Copia guardada en Descargas. Incluye tus claves: compártela solo con tu grupo de viaje.':'Copia guardada en Descargas.')}
+  async exportTrip(){const trip=this.store.active;if(!trip)return;const payload=this.store.exportPayload(trip);try{const catalogs=typeof CatalogStore!=='undefined'?await CatalogStore.stored():[];if(catalogs.length)payload.catalogs=catalogs}catch{}const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),anchor=document.createElement('a');anchor.href=url;anchor.download=`Moppi_${slug(trip.title)||'viaje'}_${zoneDate(new Date(),deviceTimeZone())}.json`;document.body.appendChild(anchor);anchor.click();anchor.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);this.store.markExported();this.render();this.app.toast(payload.keys?.github?'Copia guardada en Descargas. Incluye tus claves y la conexión con GitHub: es solo para ti. A tu grupo mándale el enlace de «Compartir con el grupo».':payload.keys?'Copia guardada en Descargas. Incluye tus claves: compártela solo con tu grupo de viaje.':'Copia guardada en Descargas.')}
   importFile(file){if(!file)return;const reader=new FileReader();reader.onload=async()=>{let payload;try{payload=JSON.parse(String(reader.result||''))}catch{this.app.toast('El archivo no es una copia de Moppi válida.');return}
     const loaded=[],isObject=payload&&typeof payload==='object';
     if(isObject&&payload.keys&&typeof payload.keys==='object'&&KeyStore.importKeys(payload.keys))loaded.push('las claves');
     if(isObject&&Array.isArray(payload.catalogs)&&payload.catalogs.length){try{const result=await CatalogStore.importCatalogs(payload.catalogs);await this.app.refreshCatalogs();loaded.push(`los horarios oficiales de ${result.operators.join(', ')}`)}catch(error){this.app.toast(clean(error.message)||'No pude guardar los horarios oficiales.');return}}
     const hasTrip=isObject&&(!!payload.trip||Array.isArray(payload.cities)),extra=loaded.length?` También se cargaron ${loaded.join(' y ')}.`:'';
-    if(!hasTrip){if(loaded.length){this.app.renderSettings();this.app.toast(`Listo: se cargaron ${loaded.join(' y ')}.`)}else this.app.toast('El archivo no contiene un viaje válido.');return}
-    try{const trip=this.store.parseImport(payload);const finish=replace=>{this.store.importTrip(trip,{replace});this.data.resetActiveCity();this.close();this.changed(`Viaje «${trip.title}» restaurado.${extra}`)};if(this.store.trips.some(item=>item.id===trip.id))this.askConfirm({eyebrow:'Restaurar copia',title:'Ese viaje ya está',text:`Ya tienes el viaje «${trip.title}» en este teléfono. ¿Qué hago con la copia?`,yesLabel:'Reemplazarlo por la copia',noLabel:'Agregarla como viaje aparte',safeYes:true,onYes:()=>finish(true),onNo:()=>finish(false)});else finish(false)}catch(error){this.app.toast(clean(error.message)||'No pude leer la copia.')}};reader.onerror=()=>this.app.toast('No pude leer el archivo.');reader.readAsText(file)}
+    if(!hasTrip){if(loaded.length){this.app.renderSettings();MoppiShare.render();this.app.toast(`Listo: se cargaron ${loaded.join(' y ')}.`)}else this.app.toast('El archivo no contiene un viaje válido.');return}
+    try{const trip=this.store.parseImport(payload);const finish=replace=>{const copy=this.store.importTrip(trip,{replace});if(payload.share)MoppiShare.importBackup(payload.share,copy.id);this.data.resetActiveCity();this.close();this.changed(`Viaje «${trip.title}» restaurado.${extra}`)};if(this.store.trips.some(item=>item.id===trip.id))this.askConfirm({eyebrow:'Restaurar copia',title:'Ese viaje ya está',text:`Ya tienes el viaje «${trip.title}» en este teléfono. ¿Qué hago con la copia?`,yesLabel:'Reemplazarlo por la copia',noLabel:'Agregarla como viaje aparte',safeYes:true,onYes:()=>finish(true),onNo:()=>finish(false)});else finish(false)}catch(error){this.app.toast(clean(error.message)||'No pude leer la copia.')}};reader.onerror=()=>this.app.toast('No pude leer el archivo.');reader.readAsText(file)}
 
   openCity(cityId){if(!this.store.active){this.app.toast('Primero crea un viaje.');return}this.open({type:'city',cityId})}
   renderCity(view){
@@ -861,6 +876,261 @@ class TripEditor{
   }
 }
 
+/* VIAJE COMPARTIDO (V1.9.4) · quien comparte publica el viaje cifrado (AES-GCM de 256 bits) en un gist secreto
+   de su GitHub. Quien abre el enlace lo ve en su teléfono, actualizado y sin poder editarlo.
+   La clave para leerlo va solo en el enlace, después de «#», así que nunca llega a GitHub.
+   Lo que se publica: el viaje, las claves de los servicios (no la conexión de GitHub) y los horarios oficiales. */
+const SHARE_FILES=Object.freeze({trip:'moppi-viaje.json',catalogs:'moppi-horarios.json'});
+const SHARE_AAD='moppi-share-v1';
+function shareTiming(){
+  const test=globalThis.__MOPPI_SHARE_TEST__||{},num=(value,fallback)=>Number.isFinite(Number(value))&&value!==null&&value!==''?Number(value):fallback;
+  return{apiBase:clean(test.apiBase)||'https://api.github.com',rawBase:clean(test.rawBase)||'https://gist.githubusercontent.com',debounceMs:num(test.debounceMs,20000),retryMs:num(test.retryMs,60000),checkEveryMs:num(test.checkEveryMs,600000),minCheckGapMs:num(test.minCheckGapMs,60000),timeoutMs:num(test.timeoutMs,20000)};
+}
+const ShareCodec={
+  enc(bytes){const a=bytes instanceof Uint8Array?bytes:new Uint8Array(bytes);let s='';for(let i=0;i<a.length;i+=0x8000)s+=String.fromCharCode.apply(null,a.subarray(i,i+0x8000));return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')},
+  dec(text){const t=String(text||'').replace(/-/g,'+').replace(/_/g,'/'),bin=atob(t+(t.length%4?'='.repeat(4-t.length%4):'')),out=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)out[i]=bin.charCodeAt(i);return out},
+  validGistId(value){return/^[0-9a-f]{20,40}$/i.test(clean(value))},
+  validKey(value){return/^[A-Za-z0-9_-]{43}$/.test(clean(value))},
+  newKey(){return this.enc(crypto.getRandomValues(new Uint8Array(32)))},
+  async digest(text){return this.enc(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(text)))},
+  async gzip(bytes){if(typeof CompressionStream==='undefined')return null;try{return new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(new CompressionStream('gzip'))).arrayBuffer())}catch{return null}},
+  async gunzip(bytes){if(typeof DecompressionStream==='undefined')throw new ProviderError('SHARE_UNSUPPORTED','Este navegador no puede abrir el viaje compartido.');return new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer())},
+  async cryptoKey(keyText,usage){if(!this.validKey(keyText))throw new ProviderError('SHARE_KEY','El enlace está incompleto.');if(!globalThis.crypto?.subtle)throw new ProviderError('SHARE_UNSUPPORTED','Este navegador no puede abrir el viaje compartido.');return crypto.subtle.importKey('raw',this.dec(keyText),'AES-GCM',false,[usage])},
+  async seal(value,keyText){const raw=new TextEncoder().encode(JSON.stringify(value)),zipped=await this.gzip(raw),body=zipped||raw,iv=crypto.getRandomValues(new Uint8Array(12)),key=await this.cryptoKey(keyText,'encrypt'),data=await crypto.subtle.encrypt({name:'AES-GCM',iv,additionalData:new TextEncoder().encode(SHARE_AAD)},key,body);return JSON.stringify({schema:'moppi-share-v1',alg:'A256GCM',zip:zipped?'gzip':'none',iv:this.enc(iv),data:this.enc(data)})},
+  async open(text,keyText){
+    let envelope;try{envelope=JSON.parse(String(text||''))}catch{throw new ProviderError('SHARE_DAMAGED','El viaje compartido llegó dañado.')}
+    if(envelope?.schema!=='moppi-share-v1'||envelope.alg!=='A256GCM'||!envelope.iv||!envelope.data)throw new ProviderError('SHARE_DAMAGED','El viaje compartido llegó dañado.');
+    const key=await this.cryptoKey(keyText,'decrypt');let plain;
+    try{plain=new Uint8Array(await crypto.subtle.decrypt({name:'AES-GCM',iv:this.dec(envelope.iv),additionalData:new TextEncoder().encode(SHARE_AAD)},key,this.dec(envelope.data)))}catch{throw new ProviderError('SHARE_KEY','El enlace no corresponde a este viaje, o el viaje llegó dañado.')}
+    const bytes=envelope.zip==='gzip'?await this.gunzip(plain):plain;
+    try{return JSON.parse(new TextDecoder().decode(bytes))}catch{throw new ProviderError('SHARE_DAMAGED','El viaje compartido llegó dañado.')}
+  }
+};
+function shareWhen(iso){const date=new Date(iso||'');if(Number.isNaN(date.getTime()))return'';const minutes=Math.round((Date.now()-date.getTime())/60000);if(minutes<1)return'recién';if(minutes<60)return`hace ${minutes} min`;return new Intl.DateTimeFormat('es',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}).format(date)}
+const MoppiShare={
+  stateKey:'moppi.share.v1',deviceKey:'moppi.device.v1',app:null,store:null,timer:null,checkTimer:null,busy:false,again:false,checking:false,lastCheckAt:0,
+  read(){try{const value=JSON.parse(localStorage.getItem(this.stateKey)||'null');if(!value||typeof value!=='object')return{publish:null,follows:[]};const publish=value.publish&&typeof value.publish==='object'&&ShareCodec.validKey(value.publish.key)?value.publish:null;return{publish,follows:list(value.follows).filter(item=>item&&ShareCodec.validGistId(item.gistId)&&ShareCodec.validKey(item.key))}}catch{return{publish:null,follows:[]}}},
+  write(state){try{localStorage.setItem(this.stateKey,JSON.stringify({schema:'moppi-share-state-v1',publish:state.publish||null,follows:list(state.follows)}));return true}catch{return false}},
+  device(){try{let id=localStorage.getItem(this.deviceKey);if(!id){id=newId('device');localStorage.setItem(this.deviceKey,id)}return id}catch{return'device-sin-guardar'}},
+  token(){return KeyStore.get('github')},
+  parseLink(hash){const match=/^#?viaje=([0-9a-f]{20,40})\.([A-Za-z0-9_-]{43})$/i.exec(clean(hash));return match?{gistId:match[1].toLowerCase(),key:match[2]}:null},
+  link(publish){const base=`${location.origin}${location.pathname}`;return`${base}#viaje=${publish.gistId}.${publish.key}`},
+  readOnlyText(trip){const name=clean(trip?.sharedFrom?.name);return`Este viaje lo comparte ${name||'otra persona'}: lo ves actualizado, pero se edita solo en su teléfono.`},
+  toast(message){try{this.app?.toast(message)}catch{}},
+
+  start(app){
+    this.app=app;this.store=app.data.store;this.store.onPersist=()=>this.noteChange();this.store.onReadOnly=trip=>this.toast(this.readOnlyText(trip));
+    const timing=shareTiming();
+    window.addEventListener('online',()=>{this.flush();this.checkAll({force:true})});
+    window.addEventListener('hashchange',()=>this.takeLink());
+    document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){this.checkAll();this.flush()}});
+    this.checkTimer=setInterval(()=>{if(document.visibilityState!=='hidden')this.checkAll()},timing.checkEveryMs);
+    if(!this.takeLink())this.checkAll({force:true});
+    const publish=this.read().publish;if(publish&&publish.device===this.device())this.schedule(3000);
+    this.render();
+  },
+  takeLink(){const link=this.parseLink(location.hash);if(!link)return false;try{history.replaceState(null,'',`${location.pathname}${location.search}`)}catch{}this.follow(link.gistId,link.key);return true},
+
+  /* QUIEN COMPARTE */
+  isPublishing(trip){const publish=this.read().publish;return!!(publish&&trip&&publish.tripId===trip.id&&publish.device===this.device())},
+  noteChange(){if(!this.app)return;const state=this.read(),publish=state.publish;if(!publish||publish.device!==this.device())return;if(['ok','error'].includes(publish.status)){publish.status='pending';this.write(state)}this.schedule()},
+  schedule(delay=shareTiming().debounceMs){clearTimeout(this.timer);this.timer=setTimeout(()=>{this.timer=null;this.publishNow()},delay)},
+  flush(){const publish=this.read().publish;if(publish&&publish.device===this.device()&&['pending','error'].includes(publish.status))this.schedule(500)},
+  async api(method,path,body,token){
+    const timing=shareTiming(),controller=typeof AbortController==='function'?new AbortController():null,timer=controller?setTimeout(()=>controller.abort(),timing.timeoutMs):null;
+    let response;try{response=await fetch(`${timing.apiBase}${path}`,{method,headers:{Accept:'application/vnd.github+json',...(token?{Authorization:`Bearer ${token}`}:{}),...(body?{'Content-Type':'application/json'}:{})},body:body?JSON.stringify(body):undefined,cache:'no-store',signal:controller?.signal})}catch(error){throw new ProviderError('SHARE_NETWORK','No hubo conexión con GitHub.',{httpStatus:0})}finally{if(timer)clearTimeout(timer)}
+    if(response.status===204)return null;
+    let json=null;try{json=await response.json()}catch{json=null}
+    if(!response.ok){const remaining=response.headers.get('x-ratelimit-remaining');throw new ProviderError('SHARE_HTTP',clean(json?.message)||`GitHub respondió ${response.status}.`,{httpStatus:response.status,rateLimited:response.status===429||(response.status===403&&remaining==='0')})}
+    return json;
+  },
+  payloadFor(trip){const copy=cloneJson(trip);delete copy.sharedFrom;return{schema:'moppi-share-payload-v1',appVersion:AppConfig.version,from:clean(list(trip.travellers)[0]),trip:copy,keys:KeyStore.exportKeys()}},
+  async enable(){
+    const trip=this.store?.active;if(!trip||trip.sharedFrom)return;
+    if(!this.token()){this.toast('Falta conectar GitHub en este teléfono.');return}
+    const state=this.read();if(state.publish&&state.publish.tripId!==trip.id){this.toast('Ya compartes otro viaje. Por ahora se comparte uno a la vez.');return}
+    state.publish={tripId:trip.id,gistId:null,owner:null,key:ShareCodec.newKey(),rev:0,publishedAt:null,hash:null,catalogHash:null,device:this.device(),status:'pending',error:null};
+    this.write(state);this.render();await this.publishNow();
+    const after=this.read().publish;if(after?.gistId&&after.status==='ok')this.toast('Listo: el viaje está compartido. Ahora envía el enlace a tu grupo.');
+  },
+  async publishNow(){
+    if(this.busy){this.again=true;return}
+    const state=this.read(),publish=state.publish;if(!publish||publish.device!==this.device())return;
+    const trip=list(this.store?.trips).find(item=>item.id===publish.tripId);if(!trip){publish.status='missing';this.write(state);this.render();return}
+    const token=this.token();if(!token){publish.status='auth';publish.error='NO_TOKEN';this.write(state);this.render();return}
+    if(navigator.onLine===false){publish.status='pending';this.write(state);this.render();return}
+    this.busy=true;publish.status='publishing';this.write(state);this.render();
+    try{
+      const payload=this.payloadFor(trip),hash=await ShareCodec.digest(JSON.stringify(payload.trip)+JSON.stringify(payload.keys)+payload.from);
+      let catalogs=[];try{catalogs=await CatalogStore.stored()}catch{catalogs=[]}
+      const catalogHash=catalogs.length?await ShareCodec.digest(JSON.stringify(catalogs)):null;
+      if(publish.gistId&&hash===publish.hash&&(!catalogHash||catalogHash===publish.catalogHash)){this.finish(publish.key,{status:'ok',error:null});return}
+      /* Antes de actualizar: si otro teléfono publicó después (por ejemplo, el viaje se restauró en un teléfono nuevo), este no lo pisa. */
+      let remoteRev=0;
+      if(publish.gistId){
+        const current=await this.api('GET',`/gists/${publish.gistId}`,null,token),file=current?.files?.[SHARE_FILES.trip];let text=file&&!file.truncated&&typeof file.content==='string'?file.content:null;
+        if(!text&&file?.raw_url){const raw=await this.fetchText(file.raw_url);text=raw.ok?await raw.text():null}
+        let remote=null;if(text){try{remote=await ShareCodec.open(text,publish.key)}catch{remote=null}}
+        remoteRev=Number(remote?.rev)||0;const remoteDevice=clean(remote?.device);
+        if(remoteDevice&&remoteDevice!==this.device()&&remoteRev>=(Number(publish.rev)||0)&&!publish.takeover){this.finish(publish.key,{device:null,status:'other-device',error:null});return}
+      }
+      payload.rev=Math.max(Number(publish.rev)||0,remoteRev)+1;payload.sharedAt=new Date().toISOString();payload.device=this.device();
+      const files={[SHARE_FILES.trip]:{content:await ShareCodec.seal(payload,publish.key)}};
+      if(catalogHash&&catalogHash!==publish.catalogHash)files[SHARE_FILES.catalogs]={content:await ShareCodec.seal({schema:'moppi-share-catalogs-v1',catalogs},publish.key)};
+      const gist=publish.gistId?await this.api('PATCH',`/gists/${publish.gistId}`,{files},token):await this.api('POST','/gists',{description:'Moppi · viaje compartido (cifrado)',public:false,files},token);
+      const gistId=clean(gist?.id)||publish.gistId;if(!ShareCodec.validGistId(gistId))throw new ProviderError('SHARE_HTTP','GitHub no devolvió el viaje publicado.',{httpStatus:0});
+      this.finish(publish.key,{gistId,owner:clean(gist?.owner?.login)||publish.owner||null,rev:payload.rev,publishedAt:payload.sharedAt,hash,catalogHash:catalogHash||publish.catalogHash||null,status:'ok',error:null,takeover:false});
+    }catch(error){
+      const status=Number(error?.httpStatus);
+      if(status===404&&publish.gistId)this.finish(publish.key,{status:'gone',error:'GONE'});
+      else if(status===401||(status===403&&!error?.rateLimited))this.finish(publish.key,{status:'auth',error:String(status)});
+      else{this.finish(publish.key,{status:navigator.onLine===false||status===0?'pending':'error',error:status?String(status):'NETWORK'});this.schedule(shareTiming().retryMs)}
+    }finally{this.busy=false;this.render();if(this.again){this.again=false;this.schedule(1000)}}
+  },
+  finish(key,changes){const state=this.read();if(!state.publish||state.publish.key!==key)return;Object.assign(state.publish,changes);this.write(state)},
+  async stop(){
+    const state=this.read(),publish=state.publish;if(!publish)return;
+    if(publish.gistId&&publish.device===this.device()&&publish.status!=='gone'){
+      const token=this.token();if(!token||navigator.onLine===false){this.toast('Para dejar de compartir hace falta internet y la conexión con GitHub.');return}
+      try{await this.api('DELETE',`/gists/${publish.gistId}`,null,token)}catch(error){if(Number(error?.httpStatus)!==404){this.toast('GitHub no respondió. Prueba de nuevo en un rato.');return}}
+    }
+    clearTimeout(this.timer);const now=this.read();now.publish=null;this.write(now);this.render();this.toast('Dejaste de compartir el viaje. El enlace ya no trae cambios.');
+  },
+  takeover(){const state=this.read();if(!state.publish)return;if(!this.token()){this.toast('Falta conectar GitHub en este teléfono.');return}state.publish.device=this.device();state.publish.status='pending';state.publish.hash=null;state.publish.takeover=true;this.write(state);this.render();this.publishNow()},
+  async sendLink(){
+    const publish=this.read().publish,trip=list(this.store?.trips).find(item=>item.id===publish?.tripId);if(!publish?.gistId||!trip)return;
+    const url=this.link(publish),text=`Te comparto el viaje «${trip.title}» en Moppi. Ábrelo una vez desde tu teléfono y queda actualizado solo:\n${url}`;
+    if(navigator.share){try{await navigator.share({title:'Moppi',text});return}catch(error){if(error?.name==='AbortError')return}}
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`,'_blank','noopener');
+  },
+  async copyLink(){const publish=this.read().publish;if(!publish?.gistId)return;try{await navigator.clipboard.writeText(this.link(publish));this.toast('Enlace copiado. Pégalo en el chat de tu grupo.')}catch{this.toast('No pude copiar el enlace. Usa «Enviar el enlace».')}},
+  /* Copia de seguridad: guarda el enlace para seguir compartiendo desde otro teléfono (no se activa solo). */
+  backupFor(trip){const publish=this.read().publish;if(!publish?.gistId||publish.tripId!==trip?.id)return null;return{publish:{tripId:publish.tripId,gistId:publish.gistId,owner:publish.owner||null,key:publish.key,rev:Number(publish.rev)||0}}},
+  importBackup(share,tripId){
+    const incoming=share?.publish;if(!incoming||incoming.tripId!==tripId||!ShareCodec.validGistId(incoming.gistId)||!ShareCodec.validKey(incoming.key))return false;
+    const state=this.read();if(state.publish&&state.publish.gistId!==incoming.gistId)return false;
+    if(state.publish&&state.publish.device===this.device())return true;
+    state.publish={tripId,gistId:incoming.gistId.toLowerCase(),owner:clean(incoming.owner)||null,key:incoming.key,rev:Number(incoming.rev)||0,publishedAt:null,hash:null,catalogHash:null,device:null,status:'other-device',error:null};
+    this.write(state);return true;
+  },
+
+  /* QUIEN SIGUE UN VIAJE */
+  async follow(gistId,key){
+    const state=this.read();
+    if(state.publish?.gistId===gistId){this.toast('Este es el enlace de tu propio viaje compartido: ya lo tienes.');return}
+    const existing=state.follows.find(item=>item.gistId===gistId);
+    if(existing){if(existing.key!==key){existing.key=key;existing.etag=null;existing.rev=0;existing.catalogHash=null}}
+    else state.follows.push({gistId,key,tripId:null,owner:null,name:'',title:'',rev:0,sharedAt:null,checkedAt:null,etag:null,catalogHash:null,status:'waiting',error:null});
+    this.write(state);
+    if(navigator.onLine===false){this.toast('Guardé el enlace. El viaje se descarga apenas haya internet.');this.render();return}
+    await this.check(gistId,{announce:true});
+  },
+  async checkAll({force=false}={}){
+    const follows=this.read().follows;if(!follows.length||this.checking)return;
+    if(!force&&Date.now()-this.lastCheckAt<shareTiming().minCheckGapMs)return;
+    this.checking=true;this.lastCheckAt=Date.now();
+    try{for(const item of follows)await this.check(item.gistId)}finally{this.checking=false}
+  },
+  async fetchText(url,headers={}){const timing=shareTiming(),controller=typeof AbortController==='function'?new AbortController():null,timer=controller?setTimeout(()=>controller.abort(),timing.timeoutMs):null;try{return await fetch(url,{headers,cache:'no-store',signal:controller?.signal})}catch{throw new ProviderError('SHARE_NETWORK','No hubo conexión.',{httpStatus:0})}finally{if(timer)clearTimeout(timer)}},
+  async check(gistId,{announce=false,manual=false}={}){
+    const update=changes=>{const state=this.read(),item=state.follows.find(entry=>entry.gistId===gistId);if(!item)return null;Object.assign(item,changes);this.write(state);return item};
+    let follow=this.read().follows.find(item=>item.gistId===gistId);if(!follow)return;
+    if(navigator.onLine===false){update({status:follow.tripId?'offline':'waiting'});this.render();if(manual)this.toast('Sin internet: ves la última versión que bajó.');return}
+    const timing=shareTiming(),installed=!!follow.tripId&&list(this.store?.trips).some(item=>item.id===follow.tripId);let tripText=null,catalogText=null,etag=null,owner=follow.owner;
+    try{
+      const response=await this.fetchText(`${timing.apiBase}/gists/${gistId}`,{Accept:'application/vnd.github+json',...(follow.etag&&installed?{'If-None-Match':follow.etag}:{})});
+      if(response.status===304){update({status:'ok',error:null,checkedAt:new Date().toISOString()});this.render();if(manual)this.toast('No hay cambios nuevos.');return}
+      if(response.status===404){update({status:'gone',error:null,checkedAt:new Date().toISOString()});this.render();if(announce||manual)this.toast(follow.tripId?'Ya no se comparte este viaje: ves la última versión que bajó.':'Ese viaje ya no se comparte.');return}
+      if(!response.ok){
+        const limited=response.status===429||(response.status===403&&response.headers.get('x-ratelimit-remaining')==='0');
+        if(!(limited&&owner))throw new ProviderError('SHARE_HTTP',`GitHub respondió ${response.status}.`,{httpStatus:response.status});
+        const raw=await this.fetchText(`${timing.rawBase}/${encodeURIComponent(owner)}/${gistId}/raw/${SHARE_FILES.trip}`);
+        if(raw.status===404){update({status:'gone',error:null});this.render();return}
+        if(!raw.ok)throw new ProviderError('SHARE_HTTP',`GitHub respondió ${raw.status}.`,{httpStatus:raw.status});
+        tripText=await raw.text();
+        const rawCatalog=await this.fetchText(`${timing.rawBase}/${encodeURIComponent(owner)}/${gistId}/raw/${SHARE_FILES.catalogs}`).catch(()=>null);if(rawCatalog?.ok)catalogText=await rawCatalog.text();
+      }else{
+        etag=response.headers.get('ETag');const gist=await response.json(),files=gist?.files||{};owner=clean(gist?.owner?.login)||owner;
+        const fileText=async file=>{if(!file)return null;if(!file.truncated&&typeof file.content==='string')return file.content;if(!file.raw_url)return null;const raw=await this.fetchText(file.raw_url);return raw.ok?raw.text():null};
+        tripText=await fileText(files[SHARE_FILES.trip]);catalogText=await fileText(files[SHARE_FILES.catalogs]);
+        if(!tripText)throw new ProviderError('SHARE_DAMAGED','El viaje compartido llegó dañado.');
+      }
+      const payload=await ShareCodec.open(tripText,follow.key);
+      if(payload?.schema!=='moppi-share-payload-v1'||!payload.trip)throw new ProviderError('SHARE_DAMAGED','El viaje compartido llegó dañado.');
+      follow=this.read().follows.find(item=>item.gistId===gistId);if(!follow)return;
+      const installedTrip=follow.tripId?list(this.store.trips).find(item=>item.id===follow.tripId):null,isNew=!installedTrip,changed=isNew||(Number(payload.rev)||0)>(Number(follow.rev)||0);
+      let tripId=follow.tripId,catalogHash=follow.catalogHash;
+      if(changed)tripId=this.install(payload,follow);
+      if(catalogText){const hash=await ShareCodec.digest(catalogText);if(hash!==catalogHash){try{const catalogs=await ShareCodec.open(catalogText,follow.key);if(list(catalogs?.catalogs).length){await CatalogStore.importCatalogs(catalogs.catalogs);await this.app?.refreshCatalogs?.()}catalogHash=hash}catch{}}}
+      update({tripId,owner,name:clean(payload.from),title:clean(payload.trip.title),rev:changed?Number(payload.rev)||0:follow.rev,sharedAt:changed?payload.sharedAt||null:follow.sharedAt,checkedAt:new Date().toISOString(),etag,catalogHash,status:'ok',error:null});
+      if(changed){this.refreshScreens(isNew);const who=clean(payload.from);if(isNew)this.toast(`Listo: ya tienes el viaje «${clean(payload.trip.title)}»${who?` que comparte ${who}`:''}. Se actualiza solo.`);else this.toast(`Viaje «${clean(payload.trip.title)}» actualizado${who?` por ${who}`:''}.`)}
+      else{this.render();if(manual)this.toast('No hay cambios nuevos.')}
+    }catch(error){
+      const code=clean(error?.code),status=code==='SHARE_KEY'?'badkey':code==='SHARE_DAMAGED'?'damaged':code==='SHARE_UNSUPPORTED'?'unsupported':'error';
+      update({status,error:code||'ERROR',checkedAt:new Date().toISOString()});this.render();
+      if(announce||manual)this.toast(status==='badkey'?'El enlace no corresponde a ningún viaje o está incompleto. Pide que te lo reenvíen.':status==='damaged'?'El viaje compartido llegó dañado; no cambié nada.':status==='unsupported'?'Este navegador no puede abrir el viaje compartido. Ábrelo con Chrome.':'No pude bajar el viaje compartido ahora. Reintento solo.');
+    }
+  },
+  install(payload,follow){
+    const incoming=normalizeTrip(payload.trip);if(!incoming)throw new ProviderError('SHARE_DAMAGED','El viaje compartido llegó dañado.');
+    let id=follow.tripId||incoming.id;const clash=list(this.store.trips).find(item=>item.id===id);if(clash&&!clash.sharedFrom)id=`${incoming.id}-compartido`;
+    incoming.id=id;incoming.sharedFrom={gistId:follow.gistId,name:clean(payload.from),rev:Number(payload.rev)||0,sharedAt:payload.sharedAt||null};
+    this.store.installShared(incoming,{activate:!follow.tripId});
+    if(payload.keys&&typeof payload.keys==='object'){try{KeyStore.importKeys(payload.keys)}catch{}}
+    return id;
+  },
+  refreshScreens(isNew){if(!this.app)return;if(isNew)this.app.data.resetActiveCity();const sheetOpen=$('tripSheet')?.classList.contains('open'),activeShared=!!this.store.active?.sharedFrom;if(sheetOpen&&!activeShared){this.render();return}try{this.app.data.applyTimeZone();this.app.renderAll()}catch{this.render()}},
+  unfollow(trip){const state=this.read(),gistId=trip?.sharedFrom?.gistId;state.follows=state.follows.filter(item=>item.gistId!==gistId&&item.tripId!==trip?.id);this.write(state);this.store.deleteTrip(trip.id);this.app.data.resetActiveCity();this.app.renderAll();this.toast('Quitaste el viaje compartido de este teléfono.')},
+
+  /* PANTALLA VIAJE */
+  publishStatusText(publish){
+    if(publish.status==='publishing')return'Publicando los cambios…';
+    if(publish.status==='pending')return navigator.onLine===false?'Hay cambios por publicar: se publican solos cuando haya internet.':'Hay cambios por publicar: se publican solos en unos segundos.';
+    if(publish.status==='auth')return'GitHub rechazó la conexión de este teléfono (venció o se revocó). Hasta que se vuelva a conectar, el grupo no recibe cambios.';
+    if(publish.status==='gone')return'El viaje compartido se borró en GitHub. Para volver a compartirlo, toca «Dejar de compartir» y compártelo de nuevo: el enlace cambia.';
+    if(publish.status==='error')return'GitHub no respondió. Reintento solo en un rato.';
+    if(publish.status==='missing')return'El viaje compartido ya no está en este teléfono.';
+    return publish.publishedAt?`Al día · última publicación ${shareWhen(publish.publishedAt)}.`:'Preparando el enlace…';
+  },
+  followStatusText(follow){
+    const version=follow.sharedAt?`versión del ${new Intl.DateTimeFormat('es',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}).format(new Date(follow.sharedAt))}`:'';
+    if(follow.status==='gone')return`${clean(follow.name)||'Quien lo compartía'} dejó de compartir este viaje. Ves la última versión que bajó${version?` (${version})`:''}.`;
+    if(follow.status==='offline')return`Sin internet: ves la última versión que bajó${version?` (${version})`:''}.`;
+    if(follow.status==='badkey')return'El enlace no corresponde a este viaje o está incompleto. Pide que te lo reenvíen.';
+    if(follow.status==='damaged')return`El último envío llegó dañado y no lo usé. Ves la ${version||'versión anterior'}.`;
+    if(follow.status==='error')return`No pude buscar cambios ahora; reintento solo.${version?` Ves la ${version}.`:''}`;
+    if(follow.status==='waiting')return'Esperando internet para bajar el viaje.';
+    return`Actualizado${version?`: ${version}`:''}${follow.checkedAt?` · revisado ${shareWhen(follow.checkedAt)}`:''}.`;
+  },
+  panelHtml(trip){
+    if(!trip)return'';
+    const state=this.read(),publish=state.publish,connected=!!this.token();
+    if(trip.sharedFrom){
+      const follow=state.follows.find(item=>item.tripId===trip.id);
+      return`<strong>Viaje compartido</strong><p class="hint">${escapeHTML(this.readOnlyText(trip))}</p><p class="hint" data-share-status>${escapeHTML(follow?this.followStatusText(follow):'Es una copia de un viaje compartido: no recibe cambios.')}</p><div class="trip-tools">${follow?'<button class="mini-action" data-share-check>Buscar cambios ahora</button>':''}<button class="mini-action danger" data-share-unfollow>Quitar este viaje</button></div>`;
+    }
+    const missing=connected?'':'<p class="hint">Falta conectar GitHub en este teléfono: ahí se guarda el viaje, cifrado. Se conecta solo al restaurar el archivo de conexión de Moppi (Viaje › Restaurar copia).</p>';
+    if(publish&&publish.tripId===trip.id){
+      if(publish.device!==this.device())return`<strong>Compartir con el grupo</strong><p class="hint">Este viaje se compartía desde otro teléfono. Para que tu grupo siga recibiendo los cambios con el mismo enlace, compártelo desde este.</p>${connected?'<div class="trip-tools"><button class="mini-action" data-share-takeover>Compartir desde este teléfono</button></div>':missing}`;
+      return`<strong>Compartido con el grupo</strong><p class="hint">Quien abre el enlace ve este viaje actualizado y no puede editarlo. Cada cambio que hagas se publica solo.</p><p class="hint" data-share-status>${escapeHTML(this.publishStatusText(publish))}</p><div class="trip-tools">${publish.gistId?'<button class="mini-action" data-share-send>Enviar el enlace</button><button class="mini-action" data-share-copy>Copiar el enlace</button>':''}${['pending','error'].includes(publish.status)?'<button class="mini-action" data-share-retry>Publicar ahora</button>':''}<button class="mini-action danger" data-share-stop>Dejar de compartir</button></div>`;
+    }
+    if(publish){const other=list(this.store?.trips).find(item=>item.id===publish.tripId);return`<strong>Compartir con el grupo</strong><p class="hint">Ya compartes ${other?`el viaje «${escapeHTML(other.title)}»`:'otro viaje'}. Por ahora se comparte un viaje a la vez.</p>`}
+    return`<strong>Compartir con el grupo</strong><p class="hint">Tu grupo ve este viaje en su teléfono, actualizado y sin poder editarlo. Solo tienen que abrir un enlace una vez.</p>${connected?'<div class="trip-tools"><button class="mini-action" data-share-start>Compartir este viaje</button></div>':missing}`;
+  },
+  bindPanel(root){
+    if(!root)return;const on=(selector,handler)=>root.querySelector(selector)?.addEventListener('click',handler);
+    on('[data-share-start]',()=>this.enable());
+    on('[data-share-send]',()=>this.sendLink());
+    on('[data-share-copy]',()=>this.copyLink());
+    on('[data-share-retry]',()=>this.publishNow());
+    on('[data-share-takeover]',()=>this.takeover());
+    on('[data-share-check]',()=>{const trip=this.store?.active,follow=this.read().follows.find(item=>item.tripId===trip?.id);if(follow)this.check(follow.gistId,{manual:true})});
+    on('[data-share-stop]',()=>this.app.editor.askConfirm({eyebrow:'Compartir con el grupo',title:'Dejar de compartir',text:'Tu grupo deja de recibir cambios y el enlace deja de funcionar. Lo que ya bajaron queda en sus teléfonos. Si después vuelves a compartir, el enlace es otro.',yesLabel:'Sí, dejar de compartir',onYes:()=>{this.app.editor.close();this.stop()}}));
+    on('[data-share-unfollow]',()=>{const trip=this.store?.active;if(!trip)return;this.app.editor.askConfirm({eyebrow:'Viaje compartido',title:'Quitar este viaje',text:`¿Quitar «${trip.title}» de este teléfono? Deja de recibir cambios. Para volver a tenerlo, abre otra vez el enlace.`,yesLabel:'Sí, quitarlo',onYes:()=>{this.app.editor.close();this.unfollow(trip)}})});
+  },
+  render(){const node=document.querySelector('[data-share-box]');if(!node||!this.store)return;node.innerHTML=this.panelHtml(this.store.active);this.bindPanel(node)}
+};
+
 class DiagnosticLog{
   constructor(){this.last=null;this.selfTests=null}
   start(origin,destination,queriedAt){this.last={schema:'viaje2027-diagnostic-compact-v1',appVersion:AppConfig.version,runId:`run-${Date.now()}`,createdAt:new Date().toISOString(),queriedAt:queriedAt.toISOString(),origin:{id:origin.id,name:origin.name},destination:{id:destination.id,name:destination.name,verificationStatus:destination.verificationStatus||null},input:{origin:locationAudit(origin),destination:locationAudit(destination)},status:'RUNNING',coverageStatus:null,calls:[],directFamilies:[],alternatives:[],errors:[],visual:{status:'NOT_REQUESTED'}};return this.last}
@@ -869,7 +1139,7 @@ class DiagnosticLog{
   family(state){if(!this.last)return;const row={familyId:state.familyId,line:state.line,direction:state.direction,operator:state.operator,board:{code:state.boardCode||null,name:state.boardName||null},targetCount:state.targetCodes?.length||0,queriedAt:iso(state.queriedAt),readyForBoarding:iso(state.readyForBoarding),temporalCursor:iso(state.cursor),lastDeparture:iso(state.lastDeparture),lastServiceTripID:state.lastServiceTripID||null,pages:state.pages||0,datedServiceFound:!!state.datedServiceFound,serviceDetailCalls:state.serviceDetailCount||0,materializationAttempts:state.materializationAttemptCount||0,materialized:state.materializedCount||0,reachableFound:!!state.reachableFound,providerExhausted:!!state.providerExhausted,status:state.status,terminalCause:state.terminalCause||null,rejections:list(state.rejections).slice(-8)};const i=this.last.directFamilies.findIndex(item=>item.familyId===row.familyId);if(i>=0)this.last.directFamilies[i]=row;else this.last.directFamilies.push(row)}
   finish(result){if(!this.last)return;this.last.status=result.status;this.last.coverageStatus=result.coverageStatus;this.last.authority=result.authority||null;this.last.localProcessor=result.localProcessor||null;this.last.directEnrichments=result.directEnrichments||0;this.last.alternatives=list(result.families).map(family=>({familyId:family.familyId,lines:family.lines,category:family.category||null,rank:family.rank==null?null:family.rank,officialDirect:!!family.officialDirect,valid:family.valid!==false,useful:!!family.useful,visible:!!family.visible,reason:family.visibilityReason||null,departure:family.departure||null,readyForBoarding:family.readyForBoarding||null,selectionReason:family.selectionReason||null,badges:list(family.badges),recommendationReason:family.recommendationReason||null,physicalEffort:family.physicalEffort?{confidence:family.physicalEffort.confidence,bridgeCount:family.physicalEffort.bridgeCount,stairsCount:family.physicalEffort.stairsCount,knownSignals:list(family.physicalEffort.knownSignals)}:null,schedules:list(family.schedules).map(item=>({departure:item.departure,arrival:item.arrival,reachable:item.reachable!==false})),variants:list(family.variants).map(variant=>({variantId:variant.variantId,primary:variant===family.primaryVariant,board:{code:variant.boardCode,name:variant.boardName},alight:{code:variant.alightCode,name:variant.alightName},direction:variant.direction||null,departure:variant.departure,arrival:variant.arrival,metrics:variant.metrics?{durationSeconds:variant.metrics.durationSeconds,walkMeters:variant.metrics.walkMeters,initialWalkMeters:variant.metrics.initialWalkMeters,finalWalkMeters:variant.metrics.finalWalkMeters,waitSeconds:variant.metrics.waitSeconds,transfers:variant.metrics.transfers}:null,geometryAvailability:variant.geometryAvailability,verifiedDestinationApproach:variant.verifiedDestinationApproach,tradeoffReason:family.alternativeVariants?.find(item=>item.variantId===variant.variantId)?.tradeoffReason||null})),providerSources:family.providerSources||[],metrics:family.metrics?{durationSeconds:family.metrics.durationSeconds,walkMeters:family.metrics.walkMeters,initialWalkMeters:family.metrics.initialWalkMeters,finalWalkMeters:family.metrics.finalWalkMeters,waitSeconds:family.metrics.waitSeconds,transfers:family.metrics.transfers}:null}));this.last.sectionCounts={bestOptions:list(result.sections?.bestOptions).length,otherDirect:list(result.sections?.otherDirect).length,withTransfer:list(result.sections?.withTransfer).length};this.last.finishedAt=new Date().toISOString()}
   error(stage,error){if(!this.last)return;this.last.errors.push({stage,code:error?.code||error?.name||'PROVIDER_ERROR',message:humanMessage(error),httpStatus:Number.isFinite(Number(error?.httpStatus))?Number(error.httpStatus):null,providerCode:clean(error?.providerCode)||null,providerMessage:clean(error?.providerMessage||error?.message).slice(0,240)||null,transportCause:clean(error?.transportCause)||null})}
-  sanitized(){const redact=(key,value)=>{if(/apiKey|accessKey|secret|token|credential|authorizationHeader/i.test(key))return undefined;if(typeof value==='string'&&(/AIza[0-9A-Za-z_-]{20,}/.test(value)||value.length>4000))return value.length>4000?'[OMITIDO_POR_TAMAÑO]':'[CREDENCIAL_OCULTA]';return value};return JSON.parse(JSON.stringify({current:this.last,selfTests:this.selfTests},redact))}
+  sanitized(){const redact=(key,value)=>{if(/apiKey|accessKey|secret|token|credential|authorizationHeader/i.test(key))return undefined;if(typeof value==='string'&&(/AIza[0-9A-Za-z_-]{20,}|github_pat_[A-Za-z0-9_]{20,}|ghp_[A-Za-z0-9]{20,}/.test(value)||value.length>4000))return value.length>4000?'[OMITIDO_POR_TAMAÑO]':'[CREDENCIAL_OCULTA]';return value};return JSON.parse(JSON.stringify({current:this.last,selfTests:this.selfTests},redact))}
 }
 
 class ProviderError extends Error{constructor(code,message,details={}){super(message);this.name='ProviderError';this.code=code;Object.assign(this,details)}}
@@ -1791,7 +2061,7 @@ class AppShell{
   /* Aviso cuando la app está abierta dentro de otra app (vista previa): ahí puede no guardar datos ni descargar copias. */
   renderEmbedNotice(){const node=$('embedNotice');if(!node)return;let framed=false;try{framed=window.self!==window.top}catch{framed=true}node.hidden=!framed}
   async refreshCatalogs(){const registry=this.transit?.directAuthority?.catalogs;if(!registry)return;try{registry.definitions=await CatalogStore.all();registry.cache?.clear?.()}catch{}this.catalogSummary=unique(list(registry.definitions).map(item=>clean(item.operator)||clean(item.label))).filter(Boolean);this.catalogCount=list(registry.definitions).length;if($('serviceKeysStatus'))this.renderServiceKeys()}
-  renderServiceKeys(){const node=$('serviceKeysStatus');if(!node)return;const keys=KeyStore.summary();node.textContent=`Google: ${keys.google?'conectado':'sin conectar'} · TripGo: ${keys.tripgo?'conectado':'sin conectar'} · Mapillary: ${keys.mapillary?'conectado':'sin conectar'} · Horarios oficiales: ${this.catalogCount?`${(this.catalogSummary||[]).join(', ')} (${this.catalogCount})`:'ninguno'}`;if($('tripgoKeyInput'))$('tripgoKeyInput').value='';if($('mapillaryKeyInput'))$('mapillaryKeyInput').value=''}
+  renderServiceKeys(){const node=$('serviceKeysStatus');if(!node)return;const keys=KeyStore.summary();node.textContent=`Google: ${keys.google?'conectado':'sin conectar'} · TripGo: ${keys.tripgo?'conectado':'sin conectar'} · Mapillary: ${keys.mapillary?'conectado':'sin conectar'} · Horarios oficiales: ${this.catalogCount?`${(this.catalogSummary||[]).join(', ')} (${this.catalogCount})`:'ninguno'} · Viaje compartido: ${keys.github?'conectado':'sin conectar'}`;if($('tripgoKeyInput'))$('tripgoKeyInput').value='';if($('mapillaryKeyInput'))$('mapillaryKeyInput').value=''}
   saveServiceKeys(){const tripgo=clean($('tripgoKeyInput')?.value),mapillary=clean($('mapillaryKeyInput')?.value);if(!tripgo&&!mapillary){this.toast('Pega al menos una clave.');return}if(tripgo&&!KeyStore.valid('tripgo',tripgo)){this.toast('La clave de TripGo no parece completa.');return}if(mapillary&&!KeyStore.valid('mapillary',mapillary)){this.toast('El token de Mapillary empieza con MLY|.');return}if(tripgo)KeyStore.set('tripgo',tripgo);if(mapillary)KeyStore.set('mapillary',mapillary);this.renderServiceKeys();this.toast('Claves guardadas en este teléfono.')}
   clearServiceKeys(){KeyStore.set('tripgo','');KeyStore.set('mapillary','');this.renderServiceKeys();this.toast('Claves quitadas de este teléfono.')}
   show(name){document.querySelectorAll('.view').forEach(view=>view.classList.toggle('active',view.dataset.view===name));document.querySelectorAll('[data-nav]').forEach(button=>button.classList.toggle('active',button.dataset.nav===name));window.scrollTo({top:0,behavior:'smooth'});if(name==='settings')this.renderSettings();if(name==='navigate')this.renderNavigation()}
@@ -1868,6 +2138,9 @@ function runSelfTests(){
   test('Completar un viaje anterior una sola vez',()=>{const trip=normalizeTrip({id:'v',title:'V',cities:[{id:'c1',name:'Tirano',from:'2027-01-01',to:'2027-01-02'}]}),updates=[{id:'u1',tripId:'v',addBookings:[{id:'b1',type:'lodging',title:'H',cityId:'tirano',cityName:'Tirano',startDate:'2027-01-01',endDate:'2027-01-02'}]},{id:'u2',tripId:'otro',addBookings:[{id:'b2',type:'other',title:'X',startDate:'2027-01-01'}]}],first=applyTripUpdates(trip,updates),placed=trip.bookings[0]?.cityId,clean1=!('cityName' in (trip.bookings[0]||{}));trip.bookings=[];const second=applyTripUpdates(trip,updates);return first&&placed==='c1'&&clean1&&!second&&trip.bookings.length===0&&trip.appliedUpdates.join()==='u1'});
   test('Claves: formato válido y el programa no trae claves',()=>KeyStore.valid('tripgo','abcdefghijklmnop0123')&&!KeyStore.valid('tripgo','corta')&&KeyStore.valid('mapillary','MLY|123456789|abcdef')&&!KeyStore.valid('mapillary','123')&&!/MLY\|\d{10,}|[0-9a-f]{32}/.test(String(Object.getOwnPropertyDescriptor(AppConfig.tripgo,'apiKey').get)+String(Object.getOwnPropertyDescriptor(AppConfig.mapillary,'clientToken').get)));
   test('Campos de hora: 1500 da 15:00, 3 con PM da 15:00, 25:00 no vale y no queda el reloj del teléfono',()=>!!window.MoppiTimeField&&MoppiTimeField.parse('1500').value==='15:00'&&MoppiTimeField.parse('3 pm').value==='15:00'&&MoppiTimeField.toggle('03:00','pm')==='15:00'&&MoppiTimeField.toggle('15:00','am')==='03:00'&&MoppiTimeField.toggle('12:30','am')==='00:30'&&MoppiTimeField.parse('9').value==='09:00'&&MoppiTimeField.parse('25:00').invalid===true&&MoppiTimeField.parse('7:75').invalid===true&&!document.querySelector('input[type="time"]'));
+  test('Viaje compartido: el enlace se lee y se rechazan los incompletos',()=>{const ok=MoppiShare.parseLink('#viaje=0123456789abcdef0123.'+'A'.repeat(43));return ok?.gistId==='0123456789abcdef0123'&&ok.key.length===43&&MoppiShare.parseLink('#viaje=0123456789abcdef0123.'+'A'.repeat(42))===null&&MoppiShare.parseLink('#viaje=xyz.'+'A'.repeat(43))===null&&MoppiShare.parseLink('#today')===null});
+  test('Viaje compartido: lo que se publica no lleva la conexión con GitHub',()=>!('github' in KeyStore.exportKeys())&&!('github' in MoppiShare.payloadFor(normalizeTrip({id:'t',title:'T',cities:[]})).keys)&&KeyStore.valid('github','github_pat_'+'A1'.repeat(41))&&!KeyStore.valid('github','ghp_corto'));
+  test('Viaje compartido: quien lo sigue no puede cambiarlo',()=>{const store=Object.create(TripStore.prototype);store.state={trips:[normalizeTrip({id:'x',title:'X',cities:[],sharedFrom:{gistId:'0123456789abcdef0123',name:'A'}})],activeTripId:'x'};store.version=0;store.persist=()=>{};let blocked=false;store.onReadOnly=()=>{blocked=true};return store.update(trip=>{trip.title='Y'})===null&&store.active.title==='X'&&blocked&&store.active.sharedFrom?.gistId==='0123456789abcdef0123'});
   test('Pagos: pagada en parte da el saldo y el recordatorio sale el día indicado',()=>{const b=normalizeBooking({type:'lodging',title:'T',startDate:'2027-09-12',endDate:'2027-09-15',startTime:'15:00',amount:590,currency:'USD',payment:'partial',paidAmount:88,payWhen:'arrival'}),c=normalizeBooking({type:'lodging',title:'U',startDate:'2027-09-12',endDate:'2027-09-15',amount:100,currency:'USD',payment:'paid',paidAmount:50,payWhen:'date',payDate:'2027-09-01'}),t=bookingTotals([b,c]).rows[0],due=bookingPaymentDue(b);return bookingBalance(b)===502&&c.paidAmount===null&&c.payWhen===''&&bookingBalance(c)===0&&t.paid===188&&t.due===502&&due&&due.date==='2027-09-12'&&due.time==='15:00'&&!bookingPaymentDue(c)});
   test('La app no pide claves: sin pantalla de bloqueo ni campos para pegarlas',()=>!document.getElementById('demoKeyGate')&&!document.querySelector('#googleKey,#tripgoKeyInput,#mapillaryKeyInput,#saveGoogleKey,#saveServiceKeys'));
   test('Horarios oficiales: se acepta un catálogo completo y se rechaza uno incompleto',()=>CatalogStore.valid({id:'x',serviceDate:'2027-01-01',bounds:{minLat:1,maxLat:2,minLng:1,maxLng:2},timetable:'a'.repeat(200),stops:'b'.repeat(20)})&&!CatalogStore.valid({id:'x',serviceDate:'2027-01-01',bounds:{minLat:1},timetable:'a'})&&!CatalogStore.valid({id:'',serviceDate:'x'}));
@@ -1881,6 +2154,7 @@ const diagnostics=new DiagnosticLog(),data=new DataLayer(),registry=new Provider
 window.__VIAJE2027_REBUILD__=Object.freeze({version:AppConfig.version,runSelfTests,temporalScheduleWindow,fairRoundOrder,diagnostic:()=>diagnostics.sanitized(),architecture:Object.freeze({dataAuthority:'GTFS oficial',localProcessor:'Minotor',externalPlanners:'transbordos, validación, enriquecimiento, geometría y fallback general sin GTFS utilizable'})});
 window.__VIAJE2027_APP__=app;
 app.init();
+MoppiShare.start(app);
 
 })();
 </script>
