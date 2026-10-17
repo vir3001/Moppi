@@ -170,8 +170,7 @@
     <section class="view" data-view="settings" aria-labelledby="settingsTitle">
       <div class="hero"><div class="eyebrow">Control y privacidad</div><h1 id="settingsTitle">Ajustes</h1><p class="lede">Credenciales sólo en este dispositivo; diagnósticos sin secretos.</p></div>
       <div class="settings-list">
-        <section class="settings-group" id="serviceKeysGroup"><strong>Claves de TripGo y Mapillary</strong><p class="hint" id="serviceKeysStatus"></p><label for="tripgoKeyInput" style="margin-top:10px">Clave de TripGo</label><input id="tripgoKeyInput" type="password" autocomplete="off" placeholder="Pega la clave de TripGo"><label for="mapillaryKeyInput" style="margin-top:10px">Token de Mapillary</label><input id="mapillaryKeyInput" type="password" autocomplete="off" placeholder="MLY|…"><div class="action-row" style="margin-top:10px"><button class="secondary-action" id="saveServiceKeys" type="button">Guardar en este teléfono</button><button class="secondary-action" id="clearServiceKeys" type="button">Quitar</button></div><p class="hint">Se guardan solo en este teléfono, como la clave de Google. También se cargan con el archivo de configuración desde Viaje › Restaurar copia.</p></section>
-        <section class="settings-group"><label for="googleKey">Google Maps Platform key</label><input id="googleKey" type="password" autocomplete="off" placeholder="Pegá tu clave configurada"><div class="action-row" style="margin-top:10px"><button class="secondary-action" id="saveGoogleKey">Guardar en este teléfono</button><button class="secondary-action" id="clearGoogleKey">Quitar</button></div><p class="hint">Se utiliza para Maps, WALK, control TRANSIT y Places. Las referencias visuales operativas se muestran dentro de la app. Street View se usa dentro de la app como comprobación visual puntual cuando Google dispone de una panorámica cercana.</p></section>
+        <section class="settings-group" id="serviceKeysGroup"><strong>Servicios conectados</strong><p class="hint" id="serviceKeysStatus"></p><p class="hint">Se conectan solos al restaurar una copia de Moppi (Viaje › Restaurar copia). No hace falta escribir ninguna clave.</p></section>
         <section class="settings-group"><label for="previewTime">Hora lógica de previsualización</label><input id="previewTime" type="time" value="13:00"><p class="hint">Las consultas usan una fecha actualmente soportada con esta hora local; no se presentan como horario garantizado de 2027.</p></section>
         <section class="settings-group"><div class="toggle"><div><strong>Apoyo multifuentе</strong><p class="hint">TripGo y Google agregan transbordos, validación, geometría y métricas. El GTFS oficial conserva el universo de líneas directas.</p></div><input id="multiSourceToggle" type="checkbox" checked aria-label="Activar apoyo de planners externos"></div></section>
         <section class="settings-group"><div class="toggle"><div><strong>Simular modo sin conexión</strong><p class="hint">Agenda y datos siguen disponibles; rutas online quedan pausadas.</p></div><input id="offlineToggle" type="checkbox" aria-label="Simular modo sin conexión"></div></section>
@@ -245,7 +244,7 @@ const humanMessage=error=>{
   if(code==='OFFLINE')return 'La ruta online está pausada porque activaste el modo sin conexión.';
   if(code==='TIMEOUT')return 'El proveedor tardó demasiado. Conservamos cualquier opción que ya se hubiera verificado.';
   if(code==='AUTH')return 'No pude habilitar el proveedor de rutas en esta sesión.';
-  if(code==='NO_KEY')return 'Para caminar, mapa y control adicional hace falta guardar la clave de Google en Ajustes.';
+  if(code==='NO_KEY')return 'Google no está conectado en este teléfono: se conecta solo al restaurar tu copia de Moppi (Viaje › Restaurar copia).';
   if(code==='INVALID_LOCATION')return 'El lugar elegido no tiene coordenadas válidas.';
   if(code==='NO_ROUTE_FOUND')return 'No encontré una ruta verificable para este recorrido y esta hora.';
   return 'No pude verificar todas las opciones de transporte ahora.';
@@ -259,7 +258,8 @@ const KeyStore={storageKey:'moppi.keys.v1',googleKey:'viaje2027.googleMapsKey.v1
   valid(name,value){const text=clean(value);if(name==='tripgo')return/^[A-Za-z0-9_-]{16,128}$/.test(text);if(name==='mapillary')return/^MLY\|[A-Za-z0-9|_-]{8,200}$/.test(text);if(name==='google')return/^[A-Za-z0-9_-]{20,128}$/.test(text);return false},
   set(name,value){const all=this.read(),text=clean(value);if(text)all[name]=text;else delete all[name];try{localStorage.setItem(this.storageKey,JSON.stringify(all));return true}catch{return false}},
   importKeys(keys){let count=0;for(const name of ['tripgo','mapillary'])if(this.valid(name,keys?.[name])&&this.set(name,keys[name]))count++;if(this.valid('google',keys?.google)){try{localStorage.setItem(this.googleKey,clean(keys.google));window.__viajeDemoKey=clean(keys.google);count++}catch{}}return count},
-  summary(){return{tripgo:!!this.get('tripgo'),mapillary:!!this.get('mapillary')}}};
+  summary(){let google=false;try{google=clean(localStorage.getItem(this.googleKey)).length>10}catch{}return{google,tripgo:!!this.get('tripgo'),mapillary:!!this.get('mapillary')}},
+  exportKeys(){const out={},all=this.read();for(const name of ['tripgo','mapillary'])if(this.valid(name,all[name]))out[name]=clean(all[name]);try{const google=clean(localStorage.getItem(this.googleKey));if(this.valid('google',google))out.google=google}catch{}return out}};
 /* HORARIOS OFICIALES · además de los incluidos en el programa, los que se cargan desde un archivo quedan en este teléfono. */
 const CatalogStore={dbName:'moppi',storeName:'catalogs',
   embedded(){return list(window.__VIAJE_GTFS_CATALOGS__)},
@@ -269,7 +269,7 @@ const CatalogStore={dbName:'moppi',storeName:'catalogs',
   async all(){return unique([...this.embedded(),...await this.stored()],item=>item.id)},
   async importCatalogs(items){const valid=list(items).filter(item=>this.valid(item));if(!valid.length)throw new ProviderError('INVALID_CATALOG','El archivo no trae horarios oficiales válidos.');let db;try{db=await this.open()}catch{throw new ProviderError('STORAGE','Este navegador no permite guardar horarios oficiales.')}await new Promise((resolve,reject)=>{const tx=db.transaction(this.storeName,'readwrite');for(const item of valid)tx.objectStore(this.storeName).put(JSON.parse(JSON.stringify(item)));tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||new Error('IDB'))}).catch(()=>{throw new ProviderError('STORAGE','No hubo lugar para guardar los horarios oficiales en este teléfono.')});return{count:valid.length,operators:unique(valid.map(item=>clean(item.operator)||clean(item.label)||'operador'))}}};
 const AppConfig=Object.freeze({
-  version:'V1.9.0_APP',get timeZone(){return RuntimeZone.value||deviceTimeZone()},locale:'es-UY',tripStorageKey:'moppi.trips.v1',trip:{departureMarginMinutes:20},serviceDate:'2026-09-13',
+  version:'V1.9.1_SIN_CLAVES',get timeZone(){return RuntimeZone.value||deviceTimeZone()},locale:'es-UY',tripStorageKey:'moppi.trips.v1',trip:{departureMarginMinutes:20},serviceDate:'2026-09-13',
   mapillary:{get clientToken(){return KeyStore.get('mapillary')},searchRadiusMeters:35,maxCorridorMeters:25,maxCurrentMeters:220,maxCurrentNoGeometryMeters:60,limit:60,maxImages:5,minSpacingMeters:10,queryTimeoutMs:9000,imageTimeoutMs:15000},
   tripgo:{get apiKey(){return KeyStore.get('tripgo')},attribution:'Powered by TripGo'},providerDates:{maxFutureDays:28},
   discovery:{originRadiusKm:.65,destinationRadiusKm:.8,maxOriginStops:30,maxDestinationStops:30,horizonMinutes:120,walkingMetersPerSecond:1.15,walkDetourFactor:1.25,boardingBufferSeconds:35,walkMatrixBatchSize:25,requestTimeoutMs:14000},
@@ -474,7 +474,7 @@ class TripStore{
   update(mutator){const trip=this.active;if(!trip)return null;const result=mutator(trip);sortCities(trip.cities);sortBookings(trip.bookings);repairTripReferences(trip);trip.updatedAt=new Date().toISOString();this.persist();return result}
   createTrip(title,travellers=[]){const trip=normalizeTrip({id:newId('trip'),title:clean(title)||'Nuevo viaje',travellers,cities:[]});trip.updatedAt=new Date().toISOString();this.state.trips.push(trip);this.state.activeTripId=trip.id;delete this.state.userEmptied;this.persist();return trip}
   deleteTrip(id){this.state.trips=this.trips.filter(trip=>trip.id!==id);if(!this.trips.length)this.state.userEmptied=true;if(!this.trips.some(trip=>trip.id===this.state.activeTripId))this.state.activeTripId=this.trips[0]?.id||null;this.persist()}
-  exportPayload(trip=this.active){return{schema:'moppi-trip-export-v1',exportedAt:new Date().toISOString(),appVersion:AppConfig.version,trip:JSON.parse(JSON.stringify(trip))}}
+  exportPayload(trip=this.active){const keys=typeof KeyStore!=='undefined'?KeyStore.exportKeys():{};return{schema:'moppi-trip-export-v1',exportedAt:new Date().toISOString(),appVersion:AppConfig.version,trip:JSON.parse(JSON.stringify(trip)),...(Object.keys(keys).length?{keys}:{})}}
   markExported(){this.state.lastExportAt=new Date().toISOString();this.persist()}
   parseImport(text){let payload;try{payload=typeof text==='string'?JSON.parse(text):text}catch{throw new ProviderError('INVALID_TRIP_FILE','El archivo no es una copia de Moppi válida.')}const trip=normalizeTrip(payload?.trip||payload);if(!trip)throw new ProviderError('INVALID_TRIP_FILE','El archivo no contiene un viaje válido.');return trip}
   importTrip(trip,{replace=false}={}){const copy=normalizeTrip(trip);const index=this.trips.findIndex(item=>item.id===copy.id);if(index>=0&&replace)this.state.trips[index]=copy;else{if(index>=0){copy.id=newId('trip');copy.title=`${copy.title} (copia)`}this.state.trips.push(copy)}this.state.activeTripId=copy.id;delete this.state.userEmptied;this.persist();return copy}
@@ -587,7 +587,7 @@ class TripEditor{
   renderTripForm(view){const trip=view.isNew?null:this.store.active;this.sheet('Viaje',view.isNew?'Nuevo viaje':'Datos del viaje',`<form class="sheet-stack" data-trip-form><section class="settings-group"><label for="tripFormTitle">Nombre del viaje</label><input id="tripFormTitle" maxlength="80" value="${escapeHTML(trip?.title||'')}" placeholder="Por ejemplo: Vacaciones de invierno"><label for="tripFormTravellers" style="margin-top:12px">Viajeros (opcional, separados por coma)</label><input id="tripFormTravellers" maxlength="160" value="${escapeHTML(list(trip?.travellers).join(', '))}"><p class="form-error" data-form-error hidden></p></section><button class="primary-action" type="submit">${view.isNew?'Crear viaje':'Guardar'}</button></form>`);
     this.on('[data-trip-form]',event=>{event.preventDefault();const title=clean(this.q('#tripFormTitle').value),travellers=clean(this.q('#tripFormTravellers').value).split(',').map(clean).filter(Boolean);if(!title){this.error('Ponle un nombre al viaje.');return}if(view.isNew){this.store.createTrip(title,travellers);this.data.resetActiveCity();this.close();this.changed('Viaje creado. Ahora agrega las ciudades.')}else{this.store.update(item=>{item.title=title;item.travellers=travellers});this.close();this.changed('Viaje actualizado.')}},'submit')}
   deleteTrip(){const trip=this.store.active;if(!trip)return;this.askConfirm({eyebrow:'Viaje',title:'Borrar viaje',text:`¿Borrar el viaje «${trip.title}» de este teléfono? Si no guardaste una copia, se pierde.`,yesLabel:'Sí, borrar el viaje',onYes:()=>{this.store.deleteTrip(trip.id);this.data.resetActiveCity();this.close();this.changed('Viaje borrado.')}})}
-  exportTrip(){const trip=this.store.active;if(!trip)return;const payload=this.store.exportPayload(trip),blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),anchor=document.createElement('a');anchor.href=url;anchor.download=`Moppi_${slug(trip.title)||'viaje'}_${zoneDate(new Date(),deviceTimeZone())}.json`;document.body.appendChild(anchor);anchor.click();anchor.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);this.store.markExported();this.render();this.app.toast('Copia guardada en Descargas.')}
+  async exportTrip(){const trip=this.store.active;if(!trip)return;const payload=this.store.exportPayload(trip);try{const catalogs=typeof CatalogStore!=='undefined'?await CatalogStore.stored():[];if(catalogs.length)payload.catalogs=catalogs}catch{}const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),anchor=document.createElement('a');anchor.href=url;anchor.download=`Moppi_${slug(trip.title)||'viaje'}_${zoneDate(new Date(),deviceTimeZone())}.json`;document.body.appendChild(anchor);anchor.click();anchor.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);this.store.markExported();this.render();this.app.toast(payload.keys?'Copia guardada en Descargas. Incluye tus claves: compártela solo con tu grupo de viaje.':'Copia guardada en Descargas.')}
   importFile(file){if(!file)return;const reader=new FileReader();reader.onload=async()=>{let payload;try{payload=JSON.parse(String(reader.result||''))}catch{this.app.toast('El archivo no es una copia de Moppi válida.');return}
     const loaded=[],isObject=payload&&typeof payload==='object';
     if(isObject&&payload.keys&&typeof payload.keys==='object'&&KeyStore.importKeys(payload.keys))loaded.push('las claves');
@@ -1693,7 +1693,7 @@ class AppShell{
     $('routeForm').addEventListener('submit',event=>{event.preventDefault();this.calculate()});$('swapRoute').addEventListener('click',()=>{const from=$('originSelect').value;$('originSelect').value=$('destinationSelect').value;$('destinationSelect').value=from});
     $('routeTimeMode').addEventListener('change',()=>this.updateRouteTimeControls());$('routeTimeInput').addEventListener('change',()=>this.data.updateSettings({routeTime:$('routeTimeInput').value}));
     $('searchDestination').addEventListener('click',()=>this.openSearch());$('openPlaceSearch').addEventListener('click',()=>this.openSearch());$('closeSearch').addEventListener('click',()=>this.closeSearch());$('searchDialog').addEventListener('click',event=>{if(event.target===$('searchDialog'))this.closeSearch()});$('placeSearchForm').addEventListener('submit',event=>{event.preventDefault();this.searchPlaces()});
-    $('saveGoogleKey').addEventListener('click',()=>this.saveGoogleKey());$('saveServiceKeys')?.addEventListener('click',()=>this.saveServiceKeys());$('clearServiceKeys')?.addEventListener('click',()=>this.clearServiceKeys());$('clearGoogleKey').addEventListener('click',()=>this.clearGoogleKey());$('previewTime').addEventListener('change',()=>{this.data.updateSettings({previewTime:$('previewTime').value});this.renderToday()});$('multiSourceToggle').addEventListener('change',()=>this.data.updateSettings({multiSource:$('multiSourceToggle').checked}));$('offlineToggle').addEventListener('change',()=>this.data.updateSettings({offline:$('offlineToggle').checked}));
+    $('previewTime').addEventListener('change',()=>{this.data.updateSettings({previewTime:$('previewTime').value});this.renderToday()});$('multiSourceToggle').addEventListener('change',()=>this.data.updateSettings({multiSource:$('multiSourceToggle').checked}));$('offlineToggle').addEventListener('change',()=>this.data.updateSettings({offline:$('offlineToggle').checked}));
     $('installApp')?.addEventListener('click',()=>this.installPwa());window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();this.installPrompt=event;this.renderPwaStatus()});window.addEventListener('appinstalled',()=>{this.installPrompt=null;this.pwaStatus={...this.pwaStatus,status:'INSTALLED'};this.renderPwaStatus()});$('downloadDiagnostic').addEventListener('click',()=>this.downloadDiagnostic());$('runSelfTests').addEventListener('click',()=>this.runTests());$('openExternalMap').addEventListener('click',()=>{const url=this.navigation.externalUrl();if(url!=='#')window.open(url,'_blank','noopener')});
   }
   /* Algunos visores (por ejemplo, la vista previa de archivos dentro de otra app) bloquean el envío de formularios y el botón
@@ -1702,7 +1702,7 @@ class AppShell{
   /* Aviso cuando la app está abierta dentro de otra app (vista previa): ahí puede no guardar datos ni descargar copias. */
   renderEmbedNotice(){const node=$('embedNotice');if(!node)return;let framed=false;try{framed=window.self!==window.top}catch{framed=true}node.hidden=!framed}
   async refreshCatalogs(){const registry=this.transit?.directAuthority?.catalogs;if(!registry)return;try{registry.definitions=await CatalogStore.all();registry.cache?.clear?.()}catch{}this.catalogSummary=unique(list(registry.definitions).map(item=>clean(item.operator)||clean(item.label))).filter(Boolean);this.catalogCount=list(registry.definitions).length;if($('serviceKeysStatus'))this.renderServiceKeys()}
-  renderServiceKeys(){const node=$('serviceKeysStatus');if(!node)return;const keys=KeyStore.summary();node.textContent=`TripGo: ${keys.tripgo?'cargada':'falta'} · Mapillary: ${keys.mapillary?'cargado':'falta'} · Horarios oficiales: ${this.catalogCount?`${(this.catalogSummary||[]).join(', ')} (${this.catalogCount})`:'ninguno'}`;if($('tripgoKeyInput'))$('tripgoKeyInput').value='';if($('mapillaryKeyInput'))$('mapillaryKeyInput').value=''}
+  renderServiceKeys(){const node=$('serviceKeysStatus');if(!node)return;const keys=KeyStore.summary();node.textContent=`Google: ${keys.google?'conectado':'sin conectar'} · TripGo: ${keys.tripgo?'conectado':'sin conectar'} · Mapillary: ${keys.mapillary?'conectado':'sin conectar'} · Horarios oficiales: ${this.catalogCount?`${(this.catalogSummary||[]).join(', ')} (${this.catalogCount})`:'ninguno'}`;if($('tripgoKeyInput'))$('tripgoKeyInput').value='';if($('mapillaryKeyInput'))$('mapillaryKeyInput').value=''}
   saveServiceKeys(){const tripgo=clean($('tripgoKeyInput')?.value),mapillary=clean($('mapillaryKeyInput')?.value);if(!tripgo&&!mapillary){this.toast('Pega al menos una clave.');return}if(tripgo&&!KeyStore.valid('tripgo',tripgo)){this.toast('La clave de TripGo no parece completa.');return}if(mapillary&&!KeyStore.valid('mapillary',mapillary)){this.toast('El token de Mapillary empieza con MLY|.');return}if(tripgo)KeyStore.set('tripgo',tripgo);if(mapillary)KeyStore.set('mapillary',mapillary);this.renderServiceKeys();this.toast('Claves guardadas en este teléfono.')}
   clearServiceKeys(){KeyStore.set('tripgo','');KeyStore.set('mapillary','');this.renderServiceKeys();this.toast('Claves quitadas de este teléfono.')}
   show(name){document.querySelectorAll('.view').forEach(view=>view.classList.toggle('active',view.dataset.view===name));document.querySelectorAll('[data-nav]').forEach(button=>button.classList.toggle('active',button.dataset.nav===name));window.scrollTo({top:0,behavior:'smooth'});if(name==='settings')this.renderSettings();if(name==='navigate')this.renderNavigation()}
@@ -1724,7 +1724,7 @@ class AppShell{
   renderPlaces(){const places=this.data.places();$('placeGrid').innerHTML=places.length?places.map(place=>`<button class="place-card" data-place="${escapeHTML(place.id)}"><span class="place-icon">${place.kind==='home'?'⌂':place.kind==='station'?'⇆':'•'}</span><strong>${escapeHTML(place.name)}</strong><span>${escapeHTML(place.address||place.kind)}${place.verificationStatus==='USER_VERIFIED'?' · verificado por ti':''}</span></button>`).join(''):'<p class="lede">Todavía no hay lugares guardados para esta ciudad.</p>';$('placeGrid').querySelectorAll('[data-place]').forEach(button=>button.addEventListener('click',()=>{$('destinationSelect').value=button.dataset.place;this.show('route')}));$('nearAdvice').innerHTML=`<div class="eyebrow" style="color:#bcd3ce">Contexto actual</div><h2 style="margin:8px 0">${escapeHTML(this.data.activeCity.name)}</h2><p class="muted">Elegí un lugar guardado o buscá uno nuevo. La recomendación usa la ciudad activa, no reglas escritas para una ciudad concreta.</p>`}
   renderRouteSelectors(){const places=this.data.places(),options=places.map(place=>`<option value="${escapeHTML(place.id)}">${escapeHTML(place.name)}</option>`).join('');$('originSelect').innerHTML=options;$('destinationSelect').innerHTML=options;const station=places.find(place=>place.kind==='station')||places[0],stay=this.data.lodgingNightFor(),home=places.find(place=>place.id===stay?.placeId)||places.find(place=>place.id===this.data.activeCity.homeId)||places.find(place=>place.kind==='home')||places[1]||places[0];if(station)$('originSelect').value=station.id;if(home)$('destinationSelect').value=home.id;const settings=this.data.state.settings;$('routeTimeMode').value=settings.routeTimeMode||'DEPART_AT';$('routeTimeInput').value=settings.routeTime||settings.previewTime||'13:00';this.updateRouteTimeControls(false)}
   updateRouteTimeControls(persist=true){const mode=$('routeTimeMode').value;$('routeTimeField').hidden=mode==='NOW';if(persist)this.data.updateSettings({routeTimeMode:mode,routeTime:$('routeTimeInput').value})}
-  renderSettings(){this.renderServiceKeys();const settings=this.data.state.settings;$('previewTime').value=settings.previewTime||'13:00';$('multiSourceToggle').checked=settings.multiSource!==false;$('offlineToggle').checked=!!settings.offline;$('googleKey').value='';$('googleKey').placeholder=(()=>{try{return localStorage.getItem(AppConfig.googleKey)}catch{return null}})()?'Clave guardada en este dispositivo':'Pegá tu clave configurada';const run=this.diagnostics.last;$('diagnosticSummary').textContent=run?`${run.status} · ${run.coverageStatus||'sin cierre'} · ${run.directFamilies.length} familias directas · ${run.calls.length} operaciones registradas`:'Todavía no se calculó una ruta.';$('providerInventory').innerHTML=this.registry.inventory().map(item=>`<div>• ${escapeHTML(item.key)} · ${escapeHTML(item.role)} · ${escapeHTML(item.status||(item.available?'AVAILABLE':'NOT_CONFIGURED'))}</div>`).join('');this.renderPwaStatus()}
+  renderSettings(){this.renderServiceKeys();const settings=this.data.state.settings;$('previewTime').value=settings.previewTime||'13:00';$('multiSourceToggle').checked=settings.multiSource!==false;$('offlineToggle').checked=!!settings.offline;const run=this.diagnostics.last;$('diagnosticSummary').textContent=run?`${run.status} · ${run.coverageStatus||'sin cierre'} · ${run.directFamilies.length} familias directas · ${run.calls.length} operaciones registradas`:'Todavía no se calculó una ruta.';$('providerInventory').innerHTML=this.registry.inventory().map(item=>`<div>• ${escapeHTML(item.key)} · ${escapeHTML(item.role)} · ${escapeHTML(item.status||(item.available?'AVAILABLE':'NOT_CONFIGURED'))}</div>`).join('');this.renderPwaStatus()}
   saveGoogleKey(){const value=$('googleKey').value.trim();if(value.length<20){this.toast('La clave parece incompleta.');return}window.__viajeDemoKey=value;try{localStorage.setItem(AppConfig.googleKey,value)}catch{};if(this.googleRoutes?.mapsLoader?.markAuthorization)this.googleRoutes.mapsLoader.markAuthorization('NOT_LOADED',{providerCode:'KEY_UPDATED',providerMessage:'Demo Key actualizada en esta sesión.'});$('googleKey').value='';this.toast('Demo Key conectada. Volvé a comparar opciones para recalcular Google.');this.renderSettings()}
   clearGoogleKey(){window.__viajeDemoKey='';try{localStorage.removeItem(AppConfig.googleKey)}catch{};this.toast('Clave eliminada de esta sesión.');this.renderSettings()}
   openSearch(){$('searchDialog').classList.add('open');$('placeSearchInput').focus()}
@@ -1778,6 +1778,7 @@ function runSelfTests(){
   test('Integridad: sin ciudades, lugares ni noches rotas',()=>{const trip=normalizeTrip({id:'t',title:'T',cities:[{id:'a',name:'A',from:'2027-01-01',to:'2027-01-03',places:[{id:'p',name:'P',location:{lat:1,lng:1}}]}],bookings:[{id:'h',type:'lodging',title:'H',cityId:'zz',placeId:'p',startDate:'2027-01-01',endDate:'2027-01-03'},{id:'k',type:'lodging',title:'K',cityId:'a',placeId:'nope',startDate:'2027-01-01',endDate:'2027-01-02'}],nights:{'2027-01-01':'gone','2027-01-02':'k'}}),h=trip.bookings.find(item=>item.id==='h'),k=trip.bookings.find(item=>item.id==='k');return h.cityId===null&&h.placeId===null&&k.cityId==='a'&&k.placeId===null&&Object.keys(trip.nights).length===0});
   test('Completar un viaje anterior una sola vez',()=>{const trip=normalizeTrip({id:'v',title:'V',cities:[{id:'c1',name:'Tirano',from:'2027-01-01',to:'2027-01-02'}]}),updates=[{id:'u1',tripId:'v',addBookings:[{id:'b1',type:'lodging',title:'H',cityId:'tirano',cityName:'Tirano',startDate:'2027-01-01',endDate:'2027-01-02'}]},{id:'u2',tripId:'otro',addBookings:[{id:'b2',type:'other',title:'X',startDate:'2027-01-01'}]}],first=applyTripUpdates(trip,updates),placed=trip.bookings[0]?.cityId,clean1=!('cityName' in (trip.bookings[0]||{}));trip.bookings=[];const second=applyTripUpdates(trip,updates);return first&&placed==='c1'&&clean1&&!second&&trip.bookings.length===0&&trip.appliedUpdates.join()==='u1'});
   test('Claves: formato válido y el programa no trae claves',()=>KeyStore.valid('tripgo','abcdefghijklmnop0123')&&!KeyStore.valid('tripgo','corta')&&KeyStore.valid('mapillary','MLY|123456789|abcdef')&&!KeyStore.valid('mapillary','123')&&!/MLY\|\d{10,}|[0-9a-f]{32}/.test(String(Object.getOwnPropertyDescriptor(AppConfig.tripgo,'apiKey').get)+String(Object.getOwnPropertyDescriptor(AppConfig.mapillary,'clientToken').get)));
+  test('La app no pide claves: sin pantalla de bloqueo ni campos para pegarlas',()=>!document.getElementById('demoKeyGate')&&!document.querySelector('#googleKey,#tripgoKeyInput,#mapillaryKeyInput,#saveGoogleKey,#saveServiceKeys'));
   test('Horarios oficiales: se acepta un catálogo completo y se rechaza uno incompleto',()=>CatalogStore.valid({id:'x',serviceDate:'2027-01-01',bounds:{minLat:1,maxLat:2,minLng:1,maxLng:2},timetable:'a'.repeat(200),stops:'b'.repeat(20)})&&!CatalogStore.valid({id:'x',serviceDate:'2027-01-01',bounds:{minLat:1},timetable:'a'})&&!CatalogStore.valid({id:'',serviceDate:'x'}));
   test('Quitar un dato genérico solo si nadie lo editó',()=>{const make=name=>normalizeTrip({id:'v',title:'V',cities:[{id:'r',name:'Roma',from:'2027-01-01',to:'2027-01-03',homeId:'g',places:[{id:'g',name,address:'Roma',kind:'home',location:{lat:1,lng:2}}],agenda:{'2027-01-01':{events:[{id:'e',time:'10:00',title:'Llegar',placeId:'g'}]}}}]}),update=[{id:'u',tripId:'v',removePlaces:[{cityId:'r',placeId:'g',ifUnchanged:{name:'Genérico',address:'Roma',lat:1,lng:2}}]}],a=make('Genérico'),b=make('Mi hotel');applyTripUpdates(a,update);applyTripUpdates(b,update);return a.cities[0].places.length===0&&a.cities[0].homeId===null&&a.cities[0].agenda['2027-01-01'].events[0].placeId===null&&b.cities[0].places.length===1&&a.appliedUpdates.includes('u')&&b.appliedUpdates.includes('u')});
   test('Día de viaje: después de la salida, la ciudad siguiente',()=>{const trip=normalizeTrip({id:'t',title:'T',cities:[{id:'a',name:'A',from:'2027-01-01',to:'2027-01-03'},{id:'b',name:'B',from:'2027-01-03',to:'2027-01-09'}],bookings:[{id:'f',type:'flight',title:'A → B',cityId:'a',toCityId:'b',startDate:'2027-01-03',startTime:'11:00',endTime:'13:30'}]}),at=clock=>currentStay(trip.cities,trip,()=>({date:'2027-01-03',clock}))?.id,noTimes=normalizeTrip({...trip,bookings:[]});return at('09:00')==='a'&&at('12:00')==='b'&&at('14:00')==='b'&&currentStay(noTimes.cities,noTimes,()=>({date:'2027-01-03',clock:'20:00'}))?.id==='a'});
@@ -1793,61 +1794,7 @@ app.init();
 })();
 </script>
 
-<style id="demoKeyGateStyle">
-#demoKeyGate{position:fixed;inset:0;z-index:99999;background:rgba(13,42,38,.94);display:none;align-items:center;justify-content:center;padding:24px}
-#demoKeyGate.open{display:flex}
-#demoKeyGate .gate-card{width:min(560px,100%);background:#fbfaf5;border-radius:28px;padding:26px;box-shadow:0 24px 70px rgba(0,0,0,.28);color:#17322e}
-#demoKeyGate h2{margin:0 0 10px;font-size:30px;line-height:1.05}
-#demoKeyGate p{margin:0 0 16px;color:#67756f;line-height:1.45}
-#demoKeyGate input{width:100%;min-height:54px;border:1px solid #ccd5d1;border-radius:15px;padding:12px 14px;font-size:16px;background:white;color:#17322e}
-#demoKeyGate button{width:100%;margin-top:14px;min-height:54px;border:0;border-radius:15px;background:#ec6d4b;color:white;font-size:17px;font-weight:850}
-#demoKeyGate .gate-status{min-height:22px;margin-top:10px;font-size:13px;color:#8a3f31}
-</style>
-<div id="demoKeyGate" role="dialog" aria-modal="true" aria-labelledby="demoKeyGateTitle">
-  <div class="gate-card">
-    <div style="font-size:12px;font-weight:900;letter-spacing:.12em;color:#2b8177;margin-bottom:10px">CONEXIÓN GOOGLE</div>
-    <h2 id="demoKeyGateTitle">Conectar la Demo Key</h2>
-    <p>Este archivo nuevo puede no heredar la clave guardada por otro HTML abierto desde Descargas. Pegá la misma Maps Demo Key que ya usabas. La clave queda sólo en esta sesión/teléfono y no se escribe dentro del archivo.</p>
-    <input id="demoKeyGateInput" type="password" autocomplete="off" inputmode="text" placeholder="Pegá tu Maps Demo Key">
-    <button id="demoKeyGateSave" type="button">GUARDAR Y CONECTAR GOOGLE</button>
-    <div id="demoKeyGateStatus" class="gate-status"></div>
-  </div>
-</div>
-<script>
-(function(){
-  const gate=document.getElementById('demoKeyGate');
-  const input=document.getElementById('demoKeyGateInput');
-  const save=document.getElementById('demoKeyGateSave');
-  const status=document.getElementById('demoKeyGateStatus');
-  function stored(){
-    if(String(window.__viajeDemoKey||'').trim().length>10)return String(window.__viajeDemoKey).trim();
-    try{return String(localStorage.getItem('viaje2027.googleMapsKey.v1')||'').trim()}catch{return''}
-  }
-  function openIfNeeded(){
-    const key=stored();
-    if(key){window.__viajeDemoKey=key;gate.classList.remove('open');return}
-    gate.classList.add('open');
-    setTimeout(()=>input.focus(),120);
-  }
-  save.addEventListener('click',()=>{
-    const value=input.value.trim();
-    if(value.length<20){status.textContent='La Demo Key parece incompleta.';return}
-    window.__viajeDemoKey=value;
-    try{localStorage.setItem('viaje2027.googleMapsKey.v1',value)}catch{}
-    try{
-      if(typeof mapsLoader!=='undefined'){
-        mapsLoader.promise=null;
-        mapsLoader.authState={status:'NOT_LOADED',detectedAt:null,providerCode:null,providerMessage:null};
-      }
-    }catch{}
-    input.value='';
-    status.textContent='';
-    gate.classList.remove('open');
-    try{app?.toast?.('Google conectado. Volvé a Comparar opciones para recalcular WALK, mapa e hitos.')}catch{}
-  });
-  openIfNeeded();
-})();
-</script>
+
 
 
 <style id="priorityUiPatchStyle">
