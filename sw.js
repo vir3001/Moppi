@@ -1,8 +1,9 @@
 /* Moppi · trabajador de la app instalada.
    - La página se pide primero a la red: así cada versión nueva llega sola. Sin conexión, se usa la última guardada.
    - Íconos y manifiesto: desde la copia guardada.
+   - Mascotas (imágenes): se guardan la primera vez que se usan y quedan disponibles sin conexión.
    - Los servicios externos (Google, TripGo, Mapillary) nunca pasan por aquí: siempre van a la red. */
-const VERSION = 'moppi-1.9.0';
+const VERSION = 'moppi-1.9.5';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png'];
 
 self.addEventListener('install', event => {
