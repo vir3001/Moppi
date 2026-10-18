@@ -10,7 +10,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="manifest" href="./manifest.webmanifest">
-  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
   <title>Moppi</title>
   <style>
     :root{
@@ -110,7 +110,23 @@
 <body>
 <div class="app" id="app">
   <header class="topbar">
-    <div class="brand"><div class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 18 9 5l3 7 3-4 5 10"/><path d="M3 18h18"/></svg></div><div class="brand-copy"><strong id="brandTitle">Moppi</strong><span id="headerContext">Preparando el día</span></div></div>
+    <div class="brand"><div class="brand-mark" aria-hidden="true"><svg viewBox="0 0 512 512" focusable="false"><rect width="512" height="512" rx="116" fill="#8DBBE8"/>
+<circle cx="256" cy="282" r="190" fill="#A9CDEF"/>
+<ellipse cx="256" cy="452" rx="118" ry="13" fill="#000" opacity=".12"/>
+<circle cx="256" cy="98" r="27" fill="none" stroke="#B98A3E" stroke-width="15"/>
+<circle cx="256" cy="282" r="170" fill="#F2DDAE" stroke="#4A433D" stroke-width="13"/>
+<circle cx="256" cy="282" r="139" fill="#FFFDF8" stroke="#B98A3E" stroke-width="9"/>
+<g stroke="#4A433D" stroke-width="7" stroke-linejoin="round" stroke-linecap="round">
+<path d="M256 148 L282 224 L230 224 Z" fill="#F28C7A"/>
+<path d="M256 416 L282 340 L230 340 Z" fill="#5E86BA"/>
+<path d="M126 282 L160 265 L160 299 Z" fill="#FFFDF8" stroke-width="6"/>
+<path d="M386 282 L352 265 L352 299 Z" fill="#FFFDF8" stroke-width="6"/>
+</g>
+<g>
+<ellipse cx="220.0" cy="278" rx="12.0" ry="16.8" fill="#4A433D"/><ellipse cx="292.0" cy="278" rx="12.0" ry="16.8" fill="#4A433D"/>
+<ellipse cx="197.2" cy="304.4" rx="18.0" ry="10.799999999999999" fill="#F28C7A" opacity=".6"/><ellipse cx="314.8" cy="304.4" rx="18.0" ry="10.799999999999999" fill="#F28C7A" opacity=".6"/>
+<path d="M244.0 302.0 Q256 315.2 268.0 302.0" fill="none" stroke="#4A433D" stroke-width="5.52" stroke-linecap="round"/>
+<circle cx="224.2" cy="272.0" r="3.9599999999999995" fill="#fff"/><circle cx="296.2" cy="272.0" r="3.9599999999999995" fill="#fff"/></g></svg></div><div class="brand-copy"><strong id="brandTitle">Moppi</strong><span id="headerContext">Preparando el día</span></div></div>
     <button class="round-button" id="quickHome" aria-label="Volver al alojamiento"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10M9 20v-6h6v6"/></svg></button>
   </header>
 
@@ -354,7 +370,7 @@ const CatalogStore={dbName:'moppi',storeName:'catalogs',
   async all(){return unique([...this.embedded(),...await this.stored()],item=>item.id)},
   async importCatalogs(items){const valid=list(items).filter(item=>this.valid(item));if(!valid.length)throw new ProviderError('INVALID_CATALOG','El archivo no trae horarios oficiales válidos.');let db;try{db=await this.open()}catch{throw new ProviderError('STORAGE','Este navegador no permite guardar horarios oficiales.')}await new Promise((resolve,reject)=>{const tx=db.transaction(this.storeName,'readwrite');for(const item of valid)tx.objectStore(this.storeName).put(JSON.parse(JSON.stringify(item)));tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||new Error('IDB'))}).catch(()=>{throw new ProviderError('STORAGE','No hubo lugar para guardar los horarios oficiales en este teléfono.')});return{count:valid.length,operators:unique(valid.map(item=>clean(item.operator)||clean(item.label)||'operador'))}}};
 const AppConfig=Object.freeze({
-  version:'V1.9.7_TRENES',get timeZone(){return RuntimeZone.value||deviceTimeZone()},locale:'es-UY',tripStorageKey:'moppi.trips.v1',trip:{departureMarginMinutes:20},serviceDate:'2026-09-13',
+  version:'V1.9.8_ICONO',get timeZone(){return RuntimeZone.value||deviceTimeZone()},locale:'es-UY',tripStorageKey:'moppi.trips.v1',trip:{departureMarginMinutes:20},serviceDate:'2026-09-13',
   mapillary:{get clientToken(){return KeyStore.get('mapillary')},searchRadiusMeters:35,maxCorridorMeters:25,maxCurrentMeters:220,maxCurrentNoGeometryMeters:60,limit:60,maxImages:5,minSpacingMeters:10,queryTimeoutMs:9000,imageTimeoutMs:15000},
   tripgo:{get apiKey(){return KeyStore.get('tripgo')},attribution:'Powered by TripGo'},providerDates:{maxFutureDays:28},
   discovery:{originRadiusKm:.65,destinationRadiusKm:.8,maxOriginStops:30,maxDestinationStops:30,horizonMinutes:120,walkingMetersPerSecond:1.15,walkDetourFactor:1.25,boardingBufferSeconds:35,walkMatrixBatchSize:25,requestTimeoutMs:14000},
@@ -2525,7 +2541,7 @@ h2{font-weight:700;letter-spacing:-.005em}
 
 /* barra superior */
 .topbar{background:linear-gradient(180deg,rgba(251,247,244,.98),rgba(251,247,244,.9))}
-.brand-mark{background:var(--mint-soft);color:var(--sage-d);box-shadow:none;border:1px solid #D3E7D8}
+.brand-mark{background:none;box-shadow:none;border:0;border-radius:0}.brand-mark svg{width:38px;height:38px;display:block}
 .brand-copy strong{font-size:16px}
 .round-button{background:#fff;border:1px solid var(--line);color:var(--sage-d);box-shadow:0 6px 16px rgba(139,110,98,.08)}
 

@@ -3,8 +3,8 @@
    - Íconos y manifiesto: desde la copia guardada.
    - Mascotas (imágenes): se guardan la primera vez que se usan y quedan disponibles sin conexión.
    - Los servicios externos (Google, TripGo, Mapillary) nunca pasan por aquí: siempre van a la red. */
-const VERSION = 'moppi-1.9.7';
-const CORE = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png'];
+const VERSION = 'moppi-1.9.8';
+const CORE = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png', './icons/apple-touch-icon.png'];
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(VERSION).then(cache => cache.addAll(CORE)).then(() => self.skipWaiting()));
