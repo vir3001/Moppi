@@ -1,0 +1,2004 @@
+{
+ "cors": {
+  "Content-Type": "application/json",
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "*",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Server": "MOTIS v2.11.3",
+  "preflight_status": 200,
+  "preflight_headers": {
+   "Access-Control-Allow-Origin": "*",
+   "Access-Control-Allow-Headers": "*",
+   "Access-Control-Allow-Methods": "GET, POST, OPTIONS"
+  }
+ },
+ "version": "v6",
+ "cases": [
+  {
+   "caso": "Roma: Termini -> Colosseo",
+   "fecha": "hoy (martes 20/10/2026)",
+   "http": 200,
+   "itinerarios": 5,
+   "directos": 1,
+   "primero": {
+    "duracion_s": 780,
+    "inicio": "2026-10-20T08:03:00Z",
+    "fin": "2026-10-20T08:16:00Z",
+    "transbordos": 0,
+    "tramos": [
+     {
+      "modo": "WALK",
+      "linea": null,
+      "agencia": null,
+      "de": "START",
+      "a": "Termini",
+      "sale": "2026-10-20T08:03:00Z",
+      "llega": "2026-10-20T08:07:00Z"
+     },
+     {
+      "modo": "SUBWAY",
+      "linea": "MEB",
+      "agencia": "Atac",
+      "de": "Termini",
+      "a": "Colosseo",
+      "sale": "2026-10-20T08:07:00Z",
+      "llega": "2026-10-20T08:10:00Z"
+     },
+     {
+      "modo": "WALK",
+      "linea": null,
+      "agencia": null,
+      "de": "Colosseo",
+      "a": "END",
+      "sale": "2026-10-20T08:10:00Z",
+      "llega": "2026-10-20T08:16:00Z"
+     }
+    ]
+   },
+   "mensajes": {
+    "debugOutput": {
+     "algorithm": 1,
+     "direct": 12,
+     "execute_time": 24,
+     "fares": 0,
+     "fastest_direct": 0,
+     "fp_update_prevented_by_lower_bound": 0,
+     "gpu_supported": 1,
+     "gpu_used": 1,
+     "interval_extensions": 0,
+     "lb_time": 0,
+     "n_dest_offsets": 51,
+     "n_earliest_arrival_updated_by_footpath": 0,
+     "n_earliest_arrival_updated_by_route": 0,
+     "n_earliest_trip_calls": 0,
+     "n_events_skipped_by_early_termination": 0,
+     "n_execute_bwd": 5,
+     "n_execute_fwd": 5,
+     "n_footpaths_visited": 0,
+     "n_routes_visited": 0,
+     "n_routing_time": 0,
+     "n_start_offsets": 92,
+     "n_td_dest_offsets": 0,
+     "n_td_start_offsets": 0,
+     "prepare": 4,
+     "prepare_backward_WALK": 2,
+     "prepare_forward_WALK": 2,
+     "route_update_prevented_by_lower_bound": 0,
+     "search_interval_reduction_by_early_termination": 0
+    }
+   }
+  },
+  {
+   "caso": "Roma: Termini -> Colosseo",
+   "fecha": "setiembre 2027 (martes 14/09/2027)",
+   "http": 200,
+   "itinerarios": 0,
+   "directos": 1,
+   "primero": null,
+   "mensajes": {
+    "debugOutput": {
+     "algorithm": 1,
+     "direct": 12,
+     "execute_time": 16,
+     "fares": 0,
+     "fastest_direct": 0,
+     "fp_update_prevented_by_lower_bound": 0,
+     "gpu_supported": 1,
+     "gpu_used": 1,
+     "interval_extensions": 0,
+     "lb_time": 0,
+     "n_dest_offsets": 51,
+     "n_earliest_arrival_updated_by_footpath": 0,
+     "n_earliest_arrival_updated_by_route": 0,
+     "n_earliest_trip_calls": 0,
+     "n_events_skipped_by_early_termination": 0,
+     "n_execute_bwd": 0,
+     "n_execute_fwd": 1,
+     "n_footpaths_visited": 0,
+     "n_routes_visited": 0,
+     "n_routing_time": 0,
+     "n_start_offsets": 92,
+     "n_td_dest_offsets": 0,
+     "n_td_start_offsets": 0,
+     "prepare": 3,
+     "prepare_backward_WALK": 1,
+     "prepare_forward_WALK": 1,
+     "route_update_prevented_by_lower_bound": 0,
+     "search_interval_reduction_by_early_termination": 0
+    }
+   },
+   "directo_primero": {
+    "duracion_s": 1694,
+    "modos": [
+     "WALK"
+    ]
+   }
+  },
+  {
+   "caso": "Roma: Trastevere -> Termini",
+   "fecha": "hoy (martes 20/10/2026)",
+   "http": 200,
+   "itinerarios": 6,
+   "directos": 0,
+   "primero": {
+    "duracion_s": 2280,
+    "inicio": "2026-10-20T08:00:00Z",
+    "fin": "2026-10-20T08:38:00Z",
+    "transbordos": 0,
+    "tramos": [
+     {
+      "modo": "WALK",
+      "linea": null,
+      "agencia": null,
+      "de": "START",
+      "a": "MASTAI",
+      "sale": "2026-10-20T08:00:00Z",
+      "llega": "2026-10-20T08:06:00Z"
+     },
+     {
+      "modo": "BUS",
+      "linea": "H",
+      "agencia": "Atac",
+      "de": "MASTAI",
+      "a": "TERMINI (MA-MB-FS)",
+      "sale": "2026-10-20T08:06:00Z",
+      "llega": "2026-10-20T08:33:00Z"
+     },
+     {
+      "modo": "WALK",
+      "linea": null,
+      "agencia": null,
+      "de": "TERMINI (MA-MB-FS)",
+      "a": "END",
+      "sale": "2026-10-20T08:33:00Z",
+      "llega": "2026-10-20T08:38:00Z"
+     }
+    ]
+   },
+   "mensajes": {
+    "debugOutput": {
+     "algorithm": 1,
+     "direct": 15,
+     "execute_time": 32,
+     "fares": 0,
+     "fastest_direct": 0,
+     "fp_update_prevented_by_lower_bound": 0,
+     "gpu_supported": 1,
+     "gpu_used": 1,
+     "interval_extensions": 0,
+     "lb_time": 0,
+     "n_dest_offsets": 92,
+     "n_earliest_arrival_updated_by_footpath": 0,
+     "n_earliest_arrival_updated_by_route": 0,
+     "n_earliest_trip_calls": 0,
+     "n_events_skipped_by_early_termination": 0,
+     "n_execute_bwd": 11,
+     "n_execute_fwd": 6,
+     "n_footpaths_visited": 0,
+     "n_routes_visited": 0,
+     "n_routing_time": 0,
+     "n_start_offsets": 51,
+     "n_td_dest_offsets": 0,
+     "n_td_start_offsets": 0,
+     "prepare": 7,
+     "prepare_backward_WALK": 2,
+     "prepare_forward_WALK": 4,
+     "route_update_prevented_by_lower_bound": 0,
+     "search_interval_reduction_by_early_termination": 0
+    }
+   }
+  },
+  {
+   "caso": "Roma: Trastevere -> Termini",
+   "fecha": "setiembre 2027 (martes 14/09/2027)",
+   "http": 200,
+   "itinerarios": 0,
+   "directos": 0,
+   "primero": null,
+   "mensajes": {
+    "debugOutput": {
+     "algorithm": 1,
+     "direct": 3,
+     "execute_time": 8,
+     "fares": 0,
+     "fastest_direct": 0,
+     "fp_update_prevented_by_lower_bound": 0,
+     "gpu_supported": 1,
+     "gpu_used": 1,
+     "interval_extensions": 0,
+     "lb_time": 0,
+     "n_dest_offsets": 92,
+     "n_earliest_arrival_updated_by_footpath": 0,
+     "n_earliest_arrival_updated_by_route": 0,
+     "n_earliest_trip_calls": 0,
+     "n_events_skipped_by_early_termination": 0,
+     "n_execute_bwd": 0,
+     "n_execute_fwd": 1,
+     "n_footpaths_visited": 0,
+     "n_routes_visited": 0,
+     "n_routing_time": 0,
+     "n_start_offsets": 51,
+     "n_td_dest_offsets": 0,
+     "n_td_start_offsets": 0,
+     "prepare": 4,
+     "prepare_backward_WALK": 2,
+     "prepare_forward_WALK": 2,
+     "route_update_prevented_by_lower_bound": 0,
+     "search_interval_reduction_by_early_termination": 0
+    }
+   }
+  },
+  {
+   "caso": "Rapallo: estación -> Portofino",
+   "fecha": "hoy (martes 20/10/2026)",
+   "http": 200,
+   "itinerarios": 0,
+   "directos": 0,
+   "primero": null,
+   "mensajes": {
+    "debugOutput": {
+     "algorithm": 1,
+     "direct": 28,
+     "execute_time": 89,
+     "fares": 0,
+     "fastest_direct": 0,
+     "fp_update_prevented_by_lower_bound": 0,
+     "gpu_supported": 1,
+     "gpu_used": 1,
+     "interval_extensions": 0,
+     "lb_time": 0,
+     "n_dest_offsets": 0,
+     "n_earliest_arrival_updated_by_footpath": 0,
+     "n_earliest_arrival_updated_by_route": 0,
+     "n_earliest_trip_calls": 0,
+     "n_events_skipped_by_early_termination": 0,
+     "n_execute_bwd": 0,
+     "n_execute_fwd": 1,
+     "n_footpaths_visited": 0,
+     "n_routes_visited": 0,
+     "n_routing_time": 0,
+     "n_start_offsets": 3,
+     "n_td_dest_offsets": 0,
+     "n_td_start_offsets": 0,
+     "prepare": 1,
+     "prepare_backward_WALK": 0,
+     "prepare_forward_WALK": 0,
+     "route_update_prevented_by_lower_bound": 0,
+     "search_interval_reduction_by_early_termination": 0
+    }
+   }
+  },
+  {
+   "caso": "Rapallo: estación -> Portofino",
+   "fecha": "setiembre 2027 (martes 14/09/2027)",
+   "http": 200,
+   "itinerarios": 0,
+   "directos": 0,
+   "primero": null,
+   "mensajes": {
+    "debugOutput": {
+     "algorithm": 1,
+     "direct": 2,
+     "execute_time": 21,
+     "fares": 0,
+     "fastest_direct": 0,
+     "fp_update_prevented_by_lower_bound": 0,
+     "gpu_supported": 1,
+     "gpu_used": 1,
+     "interval_extensions": 0,
+     "lb_time": 0,
+     "n_dest_offsets": 0,
+     "n_earliest_arrival_updated_by_footpath": 0,
+     "n_earliest_arrival_updated_by_route": 0,
+     "n_earliest_trip_calls": 0,
+     "n_events_skipped_by_early_termination": 0,
+     "n_execute_bwd": 0,
+     "n_execute_fwd": 1,
+     "n_footpaths_visited": 0,
+     "n_routes_visited": 0,
+     "n_routing_time": 0,
+     "n_start_offsets": 3,
+     "n_td_dest_offsets": 0,
+     "n_td_start_offsets": 0,
+     "prepare": 1,
+     "prepare_backward_WALK": 0,
+     "prepare_forward_WALK": 0,
+     "route_update_prevented_by_lower_bound": 0,
+     "search_interval_reduction_by_early_termination": 0
+    }
+   }
+  },
+  {
+   "caso": "Génova: Brignole -> Principe",
+   "fecha": "hoy (martes 20/10/2026)",
+   "http": 200,
+   "itinerarios": 3,
+   "directos": 0,
+   "primero": {
+    "duracion_s": 780,
+    "inicio": "2026-10-20T08:02:00Z",
+    "fin": "2026-10-20T08:15:00Z",
+    "transbordos": 0,
+    "tramos": [
+     {
+      "modo": "WALK",
+      "linea": null,
+      "agencia": null,
+      "de": "START",
+      "a": "GENOVA BRIGNOLE",
+      "sale": "2026-10-20T08:02:00Z",
+      "llega": "2026-10-20T08:05:00Z"
+     },
+     {
+      "modo": "REGIONAL_RAIL",
+      "linea": "REG",
+      "agencia": "TRENITALIA",
+      "de": "GENOVA BRIGNOLE",
+      "a": "GENOVA PIAZZA PRINCIPE",
+      "sale": "2026-10-20T08:05:00Z",
+      "llega": "2026-10-20T08:11:00Z"
+     },
+     {
+      "modo": "WALK",
+      "linea": null,
+      "agencia": null,
+      "de": "GENOVA PIAZZA PRINCIPE",
+      "a": "END",
+      "sale": "2026-10-20T08:11:00Z",
+      "llega": "2026-10-20T08:15:00Z"
+     }
+    ]
+   },
+   "mensajes": {
+    "debugOutput": {
+     "algorithm": 1,
+     "direct": 94,
+     "execute_time": 18,
+     "fares": 0,
+     "fastest_direct": 0,
+     "fp_update_prevented_by_lower_bound": 0,
+     "gpu_supported": 1,
+     "gpu_used": 1,
+     "interval_extensions": 0,
+     "lb_time": 0,
+     "n_dest_offsets": 87,
+     "n_earliest_arrival_updated_by_footpath": 0,
+     "n_earliest_arrival_updated_by_route": 0,
+     "n_earliest_trip_calls": 0,
+     "n_events_skipped_by_early_termination": 0,
+     "n_execute_bwd": 3,
+     "n_execute_fwd": 3,
+     "n_footpaths_visited": 0,
+     "n_routes_visited": 0,
+     "n_routing_time": 0,
+     "n_start_offsets": 91,
+     "n_td_dest_offsets": 0,
+     "n_td_start_offsets": 0,
+     "prepare": 21,
+     "prepare_backward_WALK": 7,
+     "prepare_forward_WALK": 13,
+     "route_update_prevented_by_lower_bound": 0,
+     "search_interval_reduction_by_early_termination": 0
+    }
+   }
+  },
+  {
+   "caso": "Génova: Brignole -> Principe",
+   "fecha": "setiembre 2027 (martes 14/09/2027)",
+   "http": 200,
+   "itinerarios": 0,
+   "directos": 0,
+   "primero": null,
+   "mensajes": {
+    "debugOutput": {
+     "algorithm": 1,
+     "direct": 10,
+     "execute_time": 9,
+     "fares": 0,
+     "fastest_direct": 0,
+     "fp_update_prevented_by_lower_bound": 0,
+     "gpu_supported": 1,
+     "gpu_used": 1,
+     "interval_extensions": 0,
+     "lb_time": 0,
+     "n_dest_offsets": 87,
+     "n_earliest_arrival_updated_by_footpath": 0,
+     "n_earliest_arrival_updated_by_route": 0,
+     "n_earliest_trip_calls": 0,
+     "n_events_skipped_by_early_termination": 0,
+     "n_execute_bwd": 0,
+     "n_execute_fwd": 1,
+     "n_footpaths_visited": 0,
+     "n_routes_visited": 0,
+     "n_routing_time": 0,
+     "n_start_offsets": 91,
+     "n_td_dest_offsets": 0,
+     "n_td_start_offsets": 0,
+     "prepare": 4,
+     "prepare_backward_WALK": 1,
+     "prepare_forward_WALK": 2,
+     "route_update_prevented_by_lower_bound": 0,
+     "search_interval_reduction_by_early_termination": 0
+    }
+   }
+  },
+  {
+   "caso": "Turín: Porta Nuova -> Piazza Castello",
+   "fecha": "hoy (martes 20/10/2026)",
+   "http": 200,
+   "itinerarios": 5,
+   "directos": 1,
+   "primero": {
+    "duracion_s": 780,
+    "inicio": "2026-10-20T08:04:00Z",
+    "fin": "2026-10-20T08:17:00Z",
+    "transbordos": 0,
+    "tramos": [
+     {
+      "modo": "WALK",
+      "linea": null,
+      "agencia": null,
+      "de": "START",
+      "a": "Fermata 253 - PORTA NUOVA",
+      "sale": "2026-10-20T08:04:00Z",
+      "llega": "2026-10-20T08:06:00Z"
+     },
+     {
+      "modo": "BUS",
+      "linea": "58",
+      "agencia": "GTT Servizio Urbano",
+      "de": "Fermata 253 - PORTA NUOVA",
+      "a": "Fermata 1642 - BERTOLA",
+      "sale": "2026-10-20T08:06:00Z",
+      "llega": "2026-10-20T08:10:00Z"
+     },
+     {
+      "modo": "WALK",
+      "linea": null,
+      "agencia": null,
+      "de": "Fermata 1642 - BERTOLA",
+      "a": "END",
+      "sale": "2026-10-20T08:10:00Z",
+      "llega": "2026-10-20T08:17:00Z"
+     }
+    ]
+   },
+   "mensajes": {
+    "debugOutput": {
+     "algorithm": 1,
+     "direct": 43,
+     "execute_time": 25,
+     "fares": 0,
+     "fastest_direct": 0,
+     "fp_update_prevented_by_lower_bound": 0,
+     "gpu_supported": 1,
+     "gpu_used": 1,
+     "interval_extensions": 0,
+     "lb_time": 0,
+     "n_dest_offsets": 76,
+     "n_earliest_arrival_updated_by_footpath": 0,
+     "n_earliest_arrival_updated_by_route": 0,
+     "n_earliest_trip_calls": 0,
+     "n_events_skipped_by_early_termination": 0,
+     "n_execute_bwd": 5,
+     "n_execute_fwd": 5,
+     "n_footpaths_visited": 0,
+     "n_routes_visited": 0,
+     "n_routing_time": 0,
+     "n_start_offsets": 90,
+     "n_td_dest_offsets": 0,
+     "n_td_start_offsets": 0,
+     "prepare": 6,
+     "prepare_backward_WALK": 4,
+     "prepare_forward_WALK": 2,
+     "route_update_prevented_by_lower_bound": 0,
+     "search_interval_reduction_by_early_termination": 0
+    }
+   }
+  },
+  {
+   "caso": "Turín: Porta Nuova -> Piazza Castello",
+   "fecha": "setiembre 2027 (martes 14/09/2027)",
+   "http": 200,
+   "itinerarios": 0,
+   "directos": 1,
+   "primero": null,
+   "mensajes": {
+    "debugOutput": {
+     "algorithm": 1,
+     "direct": 10,
+     "execute_time": 25,
+     "fares": 0,
+     "fastest_direct": 0,
+     "fp_update_prevented_by_lower_bound": 0,
+     "gpu_supported": 1,
+     "gpu_used": 1,
+     "interval_extensions": 0,
+     "lb_time": 0,
+     "n_dest_offsets": 76,
+     "n_earliest_arrival_updated_by_footpath": 0,
+     "n_earliest_arrival_updated_by_route": 0,
+     "n_earliest_trip_calls": 0,
+     "n_events_skipped_by_early_termination": 0,
+     "n_execute_bwd": 0,
+     "n_execute_fwd": 1,
+     "n_footpaths_visited": 0,
+     "n_routes_visited": 0,
+     "n_routing_time": 0,
+     "n_start_offsets": 90,
+     "n_td_dest_offsets": 0,
+     "n_td_start_offsets": 0,
+     "prepare": 3,
+     "prepare_backward_WALK": 1,
+     "prepare_forward_WALK": 1,
+     "route_update_prevented_by_lower_bound": 0,
+     "search_interval_reduction_by_early_termination": 0
+    }
+   },
+   "directo_primero": {
+    "duracion_s": 1151,
+    "modos": [
+     "WALK"
+    ]
+   }
+  },
+  {
+   "caso": "Venezia: Ferrovia -> San Zaccaria",
+   "fecha": "hoy (martes 20/10/2026)",
+   "http": 200,
+   "itinerarios": 4,
+   "directos": 0,
+   "primero": {
+    "duracion_s": 1860,
+    "inicio": "2026-10-20T08:01:00Z",
+    "fin": "2026-10-20T08:32:00Z",
+    "transbordos": 0,
+    "tramos": [
+     {
+      "modo": "WALK",
+      "linea": null,
+      "agencia": null,
+      "de": "START",
+      "a": "Ferrovia \"C\"",
+      "sale": "2026-10-20T08:01:00Z",
+      "llega": "2026-10-20T08:04:00Z"
+     },
+     {
+      "modo": "FERRY",
+      "linea": "5.1",
+      "agencia": "ACTVs.p.a",
+      "de": "Ferrovia \"C\"",
+      "a": "S. Marco-San Zaccaria \"F\"",
+      "sale": "2026-10-20T08:04:00Z",
+      "llega": "2026-10-20T08:28:00Z"
+     },
+     {
+      "modo": "WALK",
+      "linea": null,
+      "agencia": null,
+      "de": "S. Marco-San Zaccaria \"F\"",
+      "a": "END",
+      "sale": "2026-10-20T08:28:00Z",
+      "llega": "2026-10-20T08:32:00Z"
+     }
+    ]
+   },
+   "mensajes": {
+    "debugOutput": {
+     "algorithm": 1,
+     "direct": 31,
+     "execute_time": 21,
+     "fares": 0,
+     "fastest_direct": 0,
+     "fp_update_prevented_by_lower_bound": 0,
+     "gpu_supported": 1,
+     "gpu_used": 1,
+     "interval_extensions": 0,
+     "lb_time": 0,
+     "n_dest_offsets": 19,
+     "n_earliest_arrival_updated_by_footpath": 0,
+     "n_earliest_arrival_updated_by_route": 0,
+     "n_earliest_trip_calls": 0,
+     "n_events_skipped_by_early_termination": 0,
+     "n_execute_bwd": 4,
+     "n_execute_fwd": 4,
+     "n_footpaths_visited": 0,
+     "n_routes_visited": 0,
+     "n_routing_time": 0,
+     "n_start_offsets": 45,
+     "n_td_dest_offsets": 0,
+     "n_td_start_offsets": 0,
+     "prepare": 7,
+     "prepare_backward_WALK": 5,
+     "prepare_forward_WALK": 2,
+     "route_update_prevented_by_lower_bound": 0,
+     "search_interval_reduction_by_early_termination": 0
+    }
+   }
+  },
+  {
+   "caso": "Venezia: Ferrovia -> San Zaccaria",
+   "fecha": "setiembre 2027 (martes 14/09/2027)",
+   "http": 200,
+   "itinerarios": 4,
+   "directos": 0,
+   "primero": {
+    "duracion_s": 1860,
+    "inicio": "2027-09-14T08:01:00Z",
+    "fin": "2027-09-14T08:32:00Z",
+    "transbordos": 0,
+    "tramos": [
+     {
+      "modo": "WALK",
+      "linea": null,
+      "agencia": null,
+      "de": "START",
+      "a": "Ferrovia \"C\"",
+      "sale": "2027-09-14T08:01:00Z",
+      "llega": "2027-09-14T08:04:00Z"
+     },
+     {
+      "modo": "FERRY",
+      "linea": "5.1",
+      "agencia": "ACTVs.p.a",
+      "de": "Ferrovia \"C\"",
+      "a": "S. Marco-San Zaccaria \"F\"",
+      "sale": "2027-09-14T08:04:00Z",
+      "llega": "2027-09-14T08:28:00Z"
+     },
+     {
+      "modo": "WALK",
+      "linea": null,
+      "agencia": null,
+      "de": "S. Marco-San Zaccaria \"F\"",
+      "a": "END",
+      "sale": "2027-09-14T08:28:00Z",
+      "llega": "2027-09-14T08:32:00Z"
+     }
+    ]
+   },
+   "mensajes": {
+    "debugOutput": {
+     "algorithm": 1,
+     "direct": 9,
+     "execute_time": 21,
+     "fares": 0,
+     "fastest_direct": 0,
+     "fp_update_prevented_by_lower_bound": 0,
+     "gpu_supported": 1,
+     "gpu_used": 1,
+     "interval_extensions": 0,
+     "lb_time": 0,
+     "n_dest_offsets": 19,
+     "n_earliest_arrival_updated_by_footpath": 0,
+     "n_earliest_arrival_updated_by_route": 0,
+     "n_earliest_trip_calls": 0,
+     "n_events_skipped_by_early_termination": 0,
+     "n_execute_bwd": 4,
+     "n_execute_fwd": 4,
+     "n_footpaths_visited": 0,
+     "n_routes_visited": 0,
+     "n_routing_time": 0,
+     "n_start_offsets": 45,
+     "n_td_dest_offsets": 0,
+     "n_td_start_offsets": 0,
+     "prepare": 2,
+     "prepare_backward_WALK": 1,
+     "prepare_forward_WALK": 1,
+     "route_update_prevented_by_lower_bound": 0,
+     "search_interval_reduction_by_early_termination": 0
+    }
+   }
+  },
+  {
+   "caso": "Milán: Centrale -> Duomo",
+   "fecha": "hoy (martes 20/10/2026)",
+   "http": 200,
+   "itinerarios": 0,
+   "directos": 0,
+   "primero": null,
+   "mensajes": {
+    "debugOutput": {
+     "algorithm": 1,
+     "direct": 52,
+     "execute_time": 76,
+     "fares": 0,
+     "fastest_direct": 0,
+     "fp_update_prevented_by_lower_bound": 0,
+     "gpu_supported": 1,
+     "gpu_used": 1,
+     "interval_extensions": 0,
+     "lb_time": 0,
+     "n_dest_offsets": 94,
+     "n_earliest_arrival_updated_by_footpath": 0,
+     "n_earliest_arrival_updated_by_route": 0,
+     "n_earliest_trip_calls": 0,
+     "n_events_skipped_by_early_termination": 0,
+     "n_execute_bwd": 0,
+     "n_execute_fwd": 1,
+     "n_footpaths_visited": 0,
+     "n_routes_visited": 0,
+     "n_routing_time": 0,
+     "n_start_offsets": 89,
+     "n_td_dest_offsets": 0,
+     "n_td_start_offsets": 0,
+     "prepare": 10,
+     "prepare_backward_WALK": 5,
+     "prepare_forward_WALK": 4,
+     "route_update_prevented_by_lower_bound": 0,
+     "search_interval_reduction_by_early_termination": 0
+    }
+   }
+  },
+  {
+   "caso": "Milán: Centrale -> Duomo",
+   "fecha": "setiembre 2027 (martes 14/09/2027)",
+   "http": 200,
+   "itinerarios": 0,
+   "directos": 0,
+   "primero": null,
+   "mensajes": {
+    "debugOutput": {
+     "algorithm": 1,
+     "direct": 3,
+     "execute_time": 17,
+     "fares": 0,
+     "fastest_direct": 0,
+     "fp_update_prevented_by_lower_bound": 0,
+     "gpu_supported": 1,
+     "gpu_used": 1,
+     "interval_extensions": 0,
+     "lb_time": 0,
+     "n_dest_offsets": 94,
+     "n_earliest_arrival_updated_by_footpath": 0,
+     "n_earliest_arrival_updated_by_route": 0,
+     "n_earliest_trip_calls": 0,
+     "n_events_skipped_by_early_termination": 0,
+     "n_execute_bwd": 0,
+     "n_execute_fwd": 1,
+     "n_footpaths_visited": 0,
+     "n_routes_visited": 0,
+     "n_routing_time": 0,
+     "n_start_offsets": 89,
+     "n_td_dest_offsets": 0,
+     "n_td_start_offsets": 0,
+     "prepare": 9,
+     "prepare_backward_WALK": 4,
+     "prepare_forward_WALK": 4,
+     "route_update_prevented_by_lower_bound": 0,
+     "search_interval_reduction_by_early_termination": 0
+    }
+   }
+  },
+  {
+   "caso": "Sevilla: Santa Justa -> Catedral",
+   "fecha": "hoy (martes 20/10/2026)",
+   "http": 200,
+   "itinerarios": 4,
+   "directos": 0,
+   "primero": {
+    "duracion_s": 1380,
+    "inicio": "2026-10-20T08:04:00Z",
+    "fin": "2026-10-20T08:27:00Z",
+    "transbordos": 0,
+    "tramos": [
+     {
+      "modo": "WALK",
+      "linea": null,
+      "agencia": null,
+      "de": "START",
+      "a": "Jose Laguillo (Santa Justa)",
+      "sale": "2026-10-20T08:04:00Z",
+      "llega": "2026-10-20T08:08:00Z"
+     },
+     {
+      "modo": "BUS",
+      "linea": "TB1",
+      "agencia": "Transportes Urbanos de Sevilla S.A.M.",
+      "de": "Jose Laguillo (Santa Justa)",
+      "a": "Plaza Ponce de Leon",
+      "sale": "2026-10-20T08:08:00Z",
+      "llega": "2026-10-20T08:13:00Z"
+     },
+     {
+      "modo": "WALK",
+      "linea": null,
+      "agencia": null,
+      "de": "Plaza Ponce de Leon",
+      "a": "END",
+      "sale": "2026-10-20T08:13:00Z",
+      "llega": "2026-10-20T08:27:00Z"
+     }
+    ]
+   },
+   "mensajes": {
+    "debugOutput": {
+     "algorithm": 1,
+     "direct": 33,
+     "execute_time": 34,
+     "fares": 0,
+     "fastest_direct": 0,
+     "fp_update_prevented_by_lower_bound": 0,
+     "gpu_supported": 1,
+     "gpu_used": 1,
+     "interval_extensions": 0,
+     "lb_time": 0,
+     "n_dest_offsets": 60,
+     "n_earliest_arrival_updated_by_footpath": 0,
+     "n_earliest_arrival_updated_by_route": 0,
+     "n_earliest_trip_calls": 0,
+     "n_events_skipped_by_early_termination": 0,
+     "n_execute_bwd": 4,
+     "n_execute_fwd": 4,
+     "n_footpaths_visited": 0,
+     "n_routes_visited": 0,
+     "n_routing_time": 0,
+     "n_start_offsets": 56,
+     "n_td_dest_offsets": 0,
+     "n_td_start_offsets": 0,
+     "prepare": 4,
+     "prepare_backward_WALK": 2,
+     "prepare_forward_WALK": 1,
+     "route_update_prevented_by_lower_bound": 0,
+     "search_interval_reduction_by_early_termination": 0
+    }
+   }
+  },
+  {
+   "caso": "Sevilla: Santa Justa -> Catedral",
+   "fecha": "setiembre 2027 (martes 14/09/2027)",
+   "http": 200,
+   "itinerarios": 0,
+   "directos": 0,
+   "primero": null,
+   "mensajes": {
+    "debugOutput": {
+     "algorithm": 1,
+     "direct": 8,
+     "execute_time": 7,
+     "fares": 0,
+     "fastest_direct": 0,
+     "fp_update_prevented_by_lower_bound": 0,
+     "gpu_supported": 1,
+     "gpu_used": 1,
+     "interval_extensions": 0,
+     "lb_time": 0,
+     "n_dest_offsets": 60,
+     "n_earliest_arrival_updated_by_footpath": 0,
+     "n_earliest_arrival_updated_by_route": 0,
+     "n_earliest_trip_calls": 0,
+     "n_events_skipped_by_early_termination": 0,
+     "n_execute_bwd": 0,
+     "n_execute_fwd": 1,
+     "n_footpaths_visited": 0,
+     "n_routes_visited": 0,
+     "n_routing_time": 0,
+     "n_start_offsets": 56,
+     "n_td_dest_offsets": 0,
+     "n_td_start_offsets": 0,
+     "prepare": 2,
+     "prepare_backward_WALK": 1,
+     "prepare_forward_WALK": 1,
+     "route_update_prevented_by_lower_bound": 0,
+     "search_interval_reduction_by_early_termination": 0
+    }
+   }
+  },
+  {
+   "caso": "Granada: estación -> Alhambra",
+   "fecha": "hoy (martes 20/10/2026)",
+   "http": 200,
+   "itinerarios": 9,
+   "directos": 0,
+   "primero": {
+    "duracion_s": 1860,
+    "inicio": "2026-10-20T08:00:00Z",
+    "fin": "2026-10-20T08:31:00Z",
+    "transbordos": 0,
+    "tramos": [
+     {
+      "modo": "WALK",
+      "linea": null,
+      "agencia": null,
+      "de": "START",
+      "a": "Avda. del Hospicio - Triunfo",
+      "sale": "2026-10-20T08:00:00Z",
+      "llega": "2026-10-20T08:14:00Z"
+     },
+     {
+      "modo": "BUS",
+      "linea": "C31",
+      "agencia": "TranspRober",
+      "de": "Avda. del Hospicio - Triunfo",
+      "a": "Plaza Nueva",
+      "sale": "2026-10-20T08:14:00Z",
+      "llega": "2026-10-20T08:17:00Z"
+     },
+     {
+      "modo": "WALK",
+      "linea": null,
+      "agencia": null,
+      "de": "Plaza Nueva",
+      "a": "END",
+      "sale": "2026-10-20T08:17:00Z",
+      "llega": "2026-10-20T08:31:00Z"
+     }
+    ]
+   },
+   "mensajes": {
+    "debugOutput": {
+     "algorithm": 1,
+     "direct": 27,
+     "execute_time": 50,
+     "fares": 0,
+     "fastest_direct": 0,
+     "fp_update_prevented_by_lower_bound": 0,
+     "gpu_supported": 1,
+     "gpu_used": 1,
+     "interval_extensions": 0,
+     "lb_time": 0,
+     "n_dest_offsets": 42,
+     "n_earliest_arrival_updated_by_footpath": 0,
+     "n_earliest_arrival_updated_by_route": 0,
+     "n_earliest_trip_calls": 0,
+     "n_events_skipped_by_early_termination": 0,
+     "n_execute_bwd": 15,
+     "n_execute_fwd": 8,
+     "n_footpaths_visited": 0,
+     "n_routes_visited": 0,
+     "n_routing_time": 0,
+     "n_start_offsets": 203,
+     "n_td_dest_offsets": 0,
+     "n_td_start_offsets": 0,
+     "prepare": 5,
+     "prepare_backward_WALK": 1,
+     "prepare_forward_WALK": 3,
+     "route_update_prevented_by_lower_bound": 0,
+     "search_interval_reduction_by_early_termination": 0
+    }
+   }
+  },
+  {
+   "caso": "Granada: estación -> Alhambra",
+   "fecha": "setiembre 2027 (martes 14/09/2027)",
+   "http": 200,
+   "itinerarios": 8,
+   "directos": 0,
+   "primero": {
+    "duracion_s": 1860,
+    "inicio": "2027-09-14T08:00:00Z",
+    "fin": "2027-09-14T08:31:00Z",
+    "transbordos": 0,
+    "tramos": [
+     {
+      "modo": "WALK",
+      "linea": null,
+      "agencia": null,
+      "de": "START",
+      "a": "Avda. del Hospicio - Triunfo",
+      "sale": "2027-09-14T08:00:00Z",
+      "llega": "2027-09-14T08:14:00Z"
+     },
+     {
+      "modo": "BUS",
+      "linea": "C31",
+      "agencia": "TranspRober",
+      "de": "Avda. del Hospicio - Triunfo",
+      "a": "Plaza Nueva",
+      "sale": "2027-09-14T08:14:00Z",
+      "llega": "2027-09-14T08:17:00Z"
+     },
+     {
+      "modo": "WALK",
+      "linea": null,
+      "agencia": null,
+      "de": "Plaza Nueva",
+      "a": "END",
+      "sale": "2027-09-14T08:17:00Z",
+      "llega": "2027-09-14T08:31:00Z"
+     }
+    ]
+   },
+   "mensajes": {
+    "debugOutput": {
+     "algorithm": 1,
+     "direct": 10,
+     "execute_time": 35,
+     "fares": 0,
+     "fastest_direct": 0,
+     "fp_update_prevented_by_lower_bound": 0,
+     "gpu_supported": 1,
+     "gpu_used": 1,
+     "interval_extensions": 0,
+     "lb_time": 0,
+     "n_dest_offsets": 42,
+     "n_earliest_arrival_updated_by_footpath": 0,
+     "n_earliest_arrival_updated_by_route": 0,
+     "n_earliest_trip_calls": 0,
+     "n_events_skipped_by_early_termination": 0,
+     "n_execute_bwd": 12,
+     "n_execute_fwd": 7,
+     "n_footpaths_visited": 0,
+     "n_routes_visited": 0,
+     "n_routing_time": 0,
+     "n_start_offsets": 203,
+     "n_td_dest_offsets": 0,
+     "n_td_start_offsets": 0,
+     "prepare": 4,
+     "prepare_backward_WALK": 1,
+     "prepare_forward_WALK": 2,
+     "route_update_prevented_by_lower_bound": 0,
+     "search_interval_reduction_by_early_termination": 0
+    }
+   }
+  },
+  {
+   "caso": "Entre ciudades: Milán Centrale -> Tirano",
+   "fecha": "hoy (martes 20/10/2026)",
+   "http": 200,
+   "itinerarios": 3,
+   "directos": 0,
+   "primero": {
+    "duracion_s": 9660,
+    "inicio": "2026-10-20T08:17:00Z",
+    "fin": "2026-10-20T10:58:00Z",
+    "transbordos": 0,
+    "tramos": [
+     {
+      "modo": "WALK",
+      "linea": null,
+      "agencia": null,
+      "de": "START",
+      "a": "Milano Centrale",
+      "sale": "2026-10-20T08:17:00Z",
+      "llega": "2026-10-20T08:20:00Z"
+     },
+     {
+      "modo": "REGIONAL_RAIL",
+      "linea": "RE8",
+      "agencia": "Trenord",
+      "de": "Milano Centrale",
+      "a": "Tirano",
+      "sale": "2026-10-20T08:20:00Z",
+      "llega": "2026-10-20T10:52:00Z"
+     },
+     {
+      "modo": "WALK",
+      "linea": null,
+      "agencia": null,
+      "de": "Tirano",
+      "a": "END",
+      "sale": "2026-10-20T10:52:00Z",
+      "llega": "2026-10-20T10:58:00Z"
+     }
+    ]
+   },
+   "mensajes": {
+    "debugOutput": {
+     "algorithm": 1,
+     "direct": 25,
+     "execute_time": 29,
+     "fares": 0,
+     "fastest_direct": 0,
+     "fp_update_prevented_by_lower_bound": 0,
+     "gpu_supported": 1,
+     "gpu_used": 1,
+     "interval_extensions": 0,
+     "lb_time": 0,
+     "n_dest_offsets": 7,
+     "n_earliest_arrival_updated_by_footpath": 0,
+     "n_earliest_arrival_updated_by_route": 0,
+     "n_earliest_trip_calls": 0,
+     "n_events_skipped_by_early_termination": 0,
+     "n_execute_bwd": 3,
+     "n_execute_fwd": 3,
+     "n_footpaths_visited": 0,
+     "n_routes_visited": 0,
+     "n_routing_time": 0,
+     "n_start_offsets": 89,
+     "n_td_dest_offsets": 0,
+     "n_td_start_offsets": 0,
+     "prepare": 6,
+     "prepare_backward_WALK": 1,
+     "prepare_forward_WALK": 5,
+     "route_update_prevented_by_lower_bound": 0,
+     "search_interval_reduction_by_early_termination": 0
+    }
+   }
+  },
+  {
+   "caso": "Entre ciudades: Milán Centrale -> Tirano",
+   "fecha": "setiembre 2027 (martes 14/09/2027)",
+   "http": 200,
+   "itinerarios": 3,
+   "directos": 0,
+   "primero": {
+    "duracion_s": 26400,
+    "inicio": "2027-09-14T09:40:00Z",
+    "fin": "2027-09-14T17:00:00Z",
+    "transbordos": 5,
+    "tramos": [
+     {
+      "modo": "WALK",
+      "linea": null,
+      "agencia": null,
+      "de": "START",
+      "a": "Milano Centrale",
+      "sale": "2027-09-14T09:40:00Z",
+      "llega": "2027-09-14T09:43:00Z"
+     },
+     {
+      "modo": "REGIONAL_RAIL",
+      "linea": "RE80",
+      "agencia": "Schweizerische Bundesbahnen SBB",
+      "de": "Milano Centrale",
+      "a": "Lugano",
+      "sale": "2027-09-14T09:43:00Z",
+      "llega": "2027-09-14T10:58:00Z"
+     },
+     {
+      "modo": "WALK",
+      "linea": null,
+      "agencia": null,
+      "de": "Lugano",
+      "a": "Lugano",
+      "sale": "2027-09-14T10:58:00Z",
+      "llega": "2027-09-14T11:02:00Z"
+     },
+     {
+      "modo": "LONG_DISTANCE",
+      "linea": "IC2",
+      "agencia": "Schweizerische Bundesbahnen SBB",
+      "de": "Lugano",
+      "a": "Bellinzona",
+      "sale": "2027-09-14T11:02:00Z",
+      "llega": "2027-09-14T11:16:00Z"
+     },
+     {
+      "modo": "WALK",
+      "linea": null,
+      "agencia": null,
+      "de": "Bellinzona",
+      "a": "Bellinzona, Stazione",
+      "sale": "2027-09-14T11:16:00Z",
+      "llega": "2027-09-14T11:20:00Z"
+     },
+     {
+      "modo": "BUS",
+      "linea": "171",
+      "agencia": "PostAuto AG",
+      "de": "Bellinzona, Stazione",
+      "a": "Thusis, Bahnhof",
+      "sale": "2027-09-14T11:40:00Z",
+      "llega": "2027-09-14T13:25:00Z"
+     },
+     {
+      "modo": "WALK",
+      "linea": null,
+      "agencia": null,
+      "de": "Thusis, Bahnhof",
+      "a": "Thusis",
+      "sale": "2027-09-14T13:25:00Z",
+      "llega": "2027-09-14T13:27:00Z"
+     },
+     {
+      "modo": "REGIONAL_RAIL",
+      "linea": "IR38",
+      "agencia": "Rhätische Bahn",
+      "de": "Thusis",
+      "a": "Samedan",
+      "sale": "2027-09-14T13:28:00Z",
+      "llega": "2027-09-14T14:45:00Z"
+     },
+     {
+      "modo": "WALK",
+      "linea": null,
+      "agencia": null,
+      "de": "Samedan",
+      "a": "Samedan, Bahnhof",
+      "sale": "2027-09-14T14:45:00Z",
+      "llega": "2027-09-14T14:47:00Z"
+     },
+     {
+      "modo": "BUS",
+      "linea": "701",
+      "agencia": "PostAuto AG",
+      "de": "Samedan, Bahnhof",
+      "a": "Poschiavo, Stazione",
+      "sale": "2027-09-14T15:05:00Z",
+      "llega": "2027-09-14T16:06:00Z"
+     },
+     {
+      "modo": "WALK",
+      "linea": null,
+      "agencia": null,
+      "de": "Poschiavo, Stazione",
+      "a": "Poschiavo",
+      "sale": "2027-09-14T16:06:00Z",
+      "llega": "2027-09-14T16:08:00Z"
+     },
+     {
+      "modo": "REGIONAL_RAIL",
+      "linea": "BEX",
+      "agencia": "Rhätische Bahn",
+      "de": "Poschiavo",
+      "a": "Tirano",
+      "sale": "2027-09-14T16:10:00Z",
+      "llega": "2027-09-14T16:50:00Z"
+     },
+     {
+      "modo": "WALK",
+      "linea": null,
+      "agencia": null,
+      "de": "Tirano",
+      "a": "END",
+      "sale": "2027-09-14T16:50:00Z",
+      "llega": "2027-09-14T17:00:00Z"
+     }
+    ]
+   },
+   "mensajes": {
+    "debugOutput": {
+     "algorithm": 1,
+     "direct": 3,
+     "execute_time": 36,
+     "fares": 0,
+     "fastest_direct": 0,
+     "fp_update_prevented_by_lower_bound": 0,
+     "gpu_supported": 1,
+     "gpu_used": 1,
+     "interval_extensions": 0,
+     "lb_time": 0,
+     "n_dest_offsets": 7,
+     "n_earliest_arrival_updated_by_footpath": 0,
+     "n_earliest_arrival_updated_by_route": 0,
+     "n_earliest_trip_calls": 0,
+     "n_events_skipped_by_early_termination": 0,
+     "n_execute_bwd": 7,
+     "n_execute_fwd": 2,
+     "n_footpaths_visited": 0,
+     "n_routes_visited": 0,
+     "n_routing_time": 0,
+     "n_start_offsets": 89,
+     "n_td_dest_offsets": 0,
+     "n_td_start_offsets": 0,
+     "prepare": 5,
+     "prepare_backward_WALK": 0,
+     "prepare_forward_WALK": 5,
+     "route_update_prevented_by_lower_bound": 0,
+     "search_interval_reduction_by_early_termination": 0
+    }
+   }
+  },
+  {
+   "caso": "Entre ciudades: Milán Centrale -> Varenna-Esino",
+   "fecha": "hoy (martes 20/10/2026)",
+   "http": 200,
+   "itinerarios": 3,
+   "directos": 0,
+   "primero": {
+    "duracion_s": 4800,
+    "inicio": "2026-10-20T08:17:00Z",
+    "fin": "2026-10-20T09:37:00Z",
+    "transbordos": 0,
+    "tramos": [
+     {
+      "modo": "WALK",
+      "linea": null,
+      "agencia": null,
+      "de": "START",
+      "a": "Milano Centrale",
+      "sale": "2026-10-20T08:17:00Z",
+      "llega": "2026-10-20T08:20:00Z"
+     },
+     {
+      "modo": "REGIONAL_RAIL",
+      "linea": "RE8",
+      "agencia": "Trenord",
+      "de": "Milano Centrale",
+      "a": "Varenna Esino",
+      "sale": "2026-10-20T08:20:00Z",
+      "llega": "2026-10-20T09:24:00Z"
+     },
+     {
+      "modo": "WALK",
+      "linea": null,
+      "agencia": null,
+      "de": "Varenna Esino",
+      "a": "END",
+      "sale": "2026-10-20T09:24:00Z",
+      "llega": "2026-10-20T09:37:00Z"
+     }
+    ]
+   },
+   "mensajes": {
+    "debugOutput": {
+     "algorithm": 1,
+     "direct": 12,
+     "execute_time": 33,
+     "fares": 0,
+     "fastest_direct": 0,
+     "fp_update_prevented_by_lower_bound": 0,
+     "gpu_supported": 1,
+     "gpu_used": 1,
+     "interval_extensions": 0,
+     "lb_time": 0,
+     "n_dest_offsets": 1,
+     "n_earliest_arrival_updated_by_footpath": 0,
+     "n_earliest_arrival_updated_by_route": 0,
+     "n_earliest_trip_calls": 0,
+     "n_events_skipped_by_early_termination": 0,
+     "n_execute_bwd": 3,
+     "n_execute_fwd": 3,
+     "n_footpaths_visited": 0,
+     "n_routes_visited": 0,
+     "n_routing_time": 0,
+     "n_start_offsets": 89,
+     "n_td_dest_offsets": 0,
+     "n_td_start_offsets": 0,
+     "prepare": 6,
+     "prepare_backward_WALK": 0,
+     "prepare_forward_WALK": 5,
+     "route_update_prevented_by_lower_bound": 0,
+     "search_interval_reduction_by_early_termination": 0
+    }
+   }
+  },
+  {
+   "caso": "Entre ciudades: Milán Centrale -> Varenna-Esino",
+   "fecha": "setiembre 2027 (martes 14/09/2027)",
+   "http": 200,
+   "itinerarios": 0,
+   "directos": 0,
+   "primero": null,
+   "mensajes": {
+    "debugOutput": {
+     "algorithm": 1,
+     "direct": 4,
+     "execute_time": 18,
+     "fares": 0,
+     "fastest_direct": 0,
+     "fp_update_prevented_by_lower_bound": 0,
+     "gpu_supported": 1,
+     "gpu_used": 1,
+     "interval_extensions": 0,
+     "lb_time": 0,
+     "n_dest_offsets": 1,
+     "n_earliest_arrival_updated_by_footpath": 0,
+     "n_earliest_arrival_updated_by_route": 0,
+     "n_earliest_trip_calls": 0,
+     "n_events_skipped_by_early_termination": 0,
+     "n_execute_bwd": 0,
+     "n_execute_fwd": 1,
+     "n_footpaths_visited": 0,
+     "n_routes_visited": 0,
+     "n_routing_time": 0,
+     "n_start_offsets": 89,
+     "n_td_dest_offsets": 0,
+     "n_td_start_offsets": 0,
+     "prepare": 5,
+     "prepare_backward_WALK": 0,
+     "prepare_forward_WALK": 4,
+     "route_update_prevented_by_lower_bound": 0,
+     "search_interval_reduction_by_early_termination": 0
+    }
+   }
+  },
+  {
+   "caso": "Entre ciudades: Sevilla Santa Justa -> Córdoba",
+   "fecha": "hoy (martes 20/10/2026)",
+   "http": 200,
+   "itinerarios": 3,
+   "directos": 0,
+   "primero": {
+    "duracion_s": 3120,
+    "inicio": "2026-10-20T08:36:00Z",
+    "fin": "2026-10-20T09:28:00Z",
+    "transbordos": 0,
+    "tramos": [
+     {
+      "modo": "WALK",
+      "linea": null,
+      "agencia": null,
+      "de": "START",
+      "a": "SEVILLA-SANTA JUSTA",
+      "sale": "2026-10-20T08:36:00Z",
+      "llega": "2026-10-20T08:37:00Z"
+     },
+     {
+      "modo": "HIGHSPEED_RAIL",
+      "linea": "TGV",
+      "agencia": "OUIGO Espana",
+      "de": "SEVILLA-SANTA JUSTA",
+      "a": "CORDOBA-CENTRAL",
+      "sale": "2026-10-20T08:37:00Z",
+      "llega": "2026-10-20T09:19:00Z"
+     },
+     {
+      "modo": "WALK",
+      "linea": null,
+      "agencia": null,
+      "de": "CORDOBA-CENTRAL",
+      "a": "END",
+      "sale": "2026-10-20T09:19:00Z",
+      "llega": "2026-10-20T09:28:00Z"
+     }
+    ]
+   },
+   "mensajes": {
+    "debugOutput": {
+     "algorithm": 1,
+     "direct": 21,
+     "execute_time": 21,
+     "fares": 0,
+     "fastest_direct": 0,
+     "fp_update_prevented_by_lower_bound": 0,
+     "gpu_supported": 1,
+     "gpu_used": 1,
+     "interval_extensions": 0,
+     "lb_time": 0,
+     "n_dest_offsets": 5,
+     "n_earliest_arrival_updated_by_footpath": 0,
+     "n_earliest_arrival_updated_by_route": 0,
+     "n_earliest_trip_calls": 0,
+     "n_events_skipped_by_early_termination": 0,
+     "n_execute_bwd": 3,
+     "n_execute_fwd": 3,
+     "n_footpaths_visited": 0,
+     "n_routes_visited": 0,
+     "n_routing_time": 0,
+     "n_start_offsets": 56,
+     "n_td_dest_offsets": 0,
+     "n_td_start_offsets": 0,
+     "prepare": 13,
+     "prepare_backward_WALK": 4,
+     "prepare_forward_WALK": 9,
+     "route_update_prevented_by_lower_bound": 0,
+     "search_interval_reduction_by_early_termination": 0
+    }
+   }
+  },
+  {
+   "caso": "Entre ciudades: Sevilla Santa Justa -> Córdoba",
+   "fecha": "setiembre 2027 (martes 14/09/2027)",
+   "http": 200,
+   "itinerarios": 0,
+   "directos": 0,
+   "primero": null,
+   "mensajes": {
+    "debugOutput": {
+     "algorithm": 1,
+     "direct": 2,
+     "execute_time": 8,
+     "fares": 0,
+     "fastest_direct": 0,
+     "fp_update_prevented_by_lower_bound": 0,
+     "gpu_supported": 1,
+     "gpu_used": 1,
+     "interval_extensions": 0,
+     "lb_time": 0,
+     "n_dest_offsets": 5,
+     "n_earliest_arrival_updated_by_footpath": 0,
+     "n_earliest_arrival_updated_by_route": 0,
+     "n_earliest_trip_calls": 0,
+     "n_events_skipped_by_early_termination": 0,
+     "n_execute_bwd": 0,
+     "n_execute_fwd": 1,
+     "n_footpaths_visited": 0,
+     "n_routes_visited": 0,
+     "n_routing_time": 0,
+     "n_start_offsets": 56,
+     "n_td_dest_offsets": 0,
+     "n_td_start_offsets": 0,
+     "prepare": 2,
+     "prepare_backward_WALK": 1,
+     "prepare_forward_WALK": 1,
+     "route_update_prevented_by_lower_bound": 0,
+     "search_interval_reduction_by_early_termination": 0
+    }
+   }
+  },
+  {
+   "caso": "Entre ciudades: Sevilla Santa Justa -> Cádiz",
+   "fecha": "hoy (martes 20/10/2026)",
+   "http": 200,
+   "itinerarios": 3,
+   "directos": 0,
+   "primero": {
+    "duracion_s": 6780,
+    "inicio": "2026-10-20T08:13:00Z",
+    "fin": "2026-10-20T10:06:00Z",
+    "transbordos": 0,
+    "tramos": [
+     {
+      "modo": "WALK",
+      "linea": null,
+      "agencia": null,
+      "de": "START",
+      "a": "Sevilla-Santa Justa",
+      "sale": "2026-10-20T08:13:00Z",
+      "llega": "2026-10-20T08:20:00Z"
+     },
+     {
+      "modo": "HIGHSPEED_RAIL",
+      "linea": "ALVIA",
+      "agencia": "RENFE OPERADORA",
+      "de": "Sevilla-Santa Justa",
+      "a": "Cádiz",
+      "sale": "2026-10-20T08:20:00Z",
+      "llega": "2026-10-20T09:58:00Z"
+     },
+     {
+      "modo": "WALK",
+      "linea": null,
+      "agencia": null,
+      "de": "Cádiz",
+      "a": "END",
+      "sale": "2026-10-20T09:58:00Z",
+      "llega": "2026-10-20T10:06:00Z"
+     }
+    ]
+   },
+   "mensajes": {
+    "debugOutput": {
+     "algorithm": 1,
+     "direct": 21,
+     "execute_time": 20,
+     "fares": 0,
+     "fastest_direct": 0,
+     "fp_update_prevented_by_lower_bound": 0,
+     "gpu_supported": 1,
+     "gpu_used": 1,
+     "interval_extensions": 0,
+     "lb_time": 0,
+     "n_dest_offsets": 18,
+     "n_earliest_arrival_updated_by_footpath": 0,
+     "n_earliest_arrival_updated_by_route": 0,
+     "n_earliest_trip_calls": 0,
+     "n_events_skipped_by_early_termination": 0,
+     "n_execute_bwd": 3,
+     "n_execute_fwd": 3,
+     "n_footpaths_visited": 0,
+     "n_routes_visited": 0,
+     "n_routing_time": 0,
+     "n_start_offsets": 56,
+     "n_td_dest_offsets": 0,
+     "n_td_start_offsets": 0,
+     "prepare": 5,
+     "prepare_backward_WALK": 2,
+     "prepare_forward_WALK": 2,
+     "route_update_prevented_by_lower_bound": 0,
+     "search_interval_reduction_by_early_termination": 0
+    }
+   }
+  },
+  {
+   "caso": "Entre ciudades: Sevilla Santa Justa -> Cádiz",
+   "fecha": "setiembre 2027 (martes 14/09/2027)",
+   "http": 200,
+   "itinerarios": 0,
+   "directos": 0,
+   "primero": null,
+   "mensajes": {
+    "debugOutput": {
+     "algorithm": 1,
+     "direct": 2,
+     "execute_time": 8,
+     "fares": 0,
+     "fastest_direct": 0,
+     "fp_update_prevented_by_lower_bound": 0,
+     "gpu_supported": 1,
+     "gpu_used": 1,
+     "interval_extensions": 0,
+     "lb_time": 0,
+     "n_dest_offsets": 18,
+     "n_earliest_arrival_updated_by_footpath": 0,
+     "n_earliest_arrival_updated_by_route": 0,
+     "n_earliest_trip_calls": 0,
+     "n_events_skipped_by_early_termination": 0,
+     "n_execute_bwd": 0,
+     "n_execute_fwd": 1,
+     "n_footpaths_visited": 0,
+     "n_routes_visited": 0,
+     "n_routing_time": 0,
+     "n_start_offsets": 56,
+     "n_td_dest_offsets": 0,
+     "n_td_start_offsets": 0,
+     "prepare": 2,
+     "prepare_backward_WALK": 0,
+     "prepare_forward_WALK": 1,
+     "route_update_prevented_by_lower_bound": 0,
+     "search_interval_reduction_by_early_termination": 0
+    }
+   }
+  },
+  {
+   "caso": "Entre ciudades: Roma Termini -> Rapallo",
+   "fecha": "hoy (martes 20/10/2026)",
+   "http": 200,
+   "itinerarios": 3,
+   "directos": 0,
+   "primero": {
+    "duracion_s": 21180,
+    "inicio": "2026-10-20T08:11:00Z",
+    "fin": "2026-10-20T14:04:00Z",
+    "transbordos": 1,
+    "tramos": [
+     {
+      "modo": "WALK",
+      "linea": null,
+      "agencia": null,
+      "de": "START",
+      "a": "ROMA TERMINI",
+      "sale": "2026-10-20T08:11:00Z",
+      "llega": "2026-10-20T08:12:00Z"
+     },
+     {
+      "modo": "REGIONAL_RAIL",
+      "linea": "RV",
+      "agencia": "TRENITALIA",
+      "de": "ROMA TERMINI",
+      "a": "CIVITAVECCHIA",
+      "sale": "2026-10-20T08:12:00Z",
+      "llega": "2026-10-20T09:13:00Z"
+     },
+     {
+      "modo": "WALK",
+      "linea": null,
+      "agencia": null,
+      "de": "CIVITAVECCHIA",
+      "a": "CIVITAVECCHIA",
+      "sale": "2026-10-20T09:13:00Z",
+      "llega": "2026-10-20T09:15:00Z"
+     },
+     {
+      "modo": "LONG_DISTANCE",
+      "linea": "IC",
+      "agencia": "TRENITALIA",
+      "de": "CIVITAVECCHIA",
+      "a": "RAPALLO",
+      "sale": "2026-10-20T09:30:00Z",
+      "llega": "2026-10-20T13:58:00Z"
+     },
+     {
+      "modo": "WALK",
+      "linea": null,
+      "agencia": null,
+      "de": "RAPALLO",
+      "a": "END",
+      "sale": "2026-10-20T13:58:00Z",
+      "llega": "2026-10-20T14:04:00Z"
+     }
+    ]
+   },
+   "mensajes": {
+    "debugOutput": {
+     "algorithm": 1,
+     "direct": 3,
+     "execute_time": 69,
+     "fares": 0,
+     "fastest_direct": 0,
+     "fp_update_prevented_by_lower_bound": 0,
+     "gpu_supported": 1,
+     "gpu_used": 1,
+     "interval_extensions": 0,
+     "lb_time": 0,
+     "n_dest_offsets": 3,
+     "n_earliest_arrival_updated_by_footpath": 0,
+     "n_earliest_arrival_updated_by_route": 0,
+     "n_earliest_trip_calls": 0,
+     "n_events_skipped_by_early_termination": 0,
+     "n_execute_bwd": 8,
+     "n_execute_fwd": 3,
+     "n_footpaths_visited": 0,
+     "n_routes_visited": 0,
+     "n_routing_time": 0,
+     "n_start_offsets": 92,
+     "n_td_dest_offsets": 0,
+     "n_td_start_offsets": 0,
+     "prepare": 3,
+     "prepare_backward_WALK": 0,
+     "prepare_forward_WALK": 3,
+     "route_update_prevented_by_lower_bound": 0,
+     "search_interval_reduction_by_early_termination": 0
+    }
+   }
+  },
+  {
+   "caso": "Entre ciudades: Roma Termini -> Rapallo",
+   "fecha": "setiembre 2027 (martes 14/09/2027)",
+   "http": 200,
+   "itinerarios": 3,
+   "directos": 0,
+   "primero": {
+    "duracion_s": 108780,
+    "inicio": "2027-09-14T08:45:00Z",
+    "fin": "2027-09-15T14:58:00Z",
+    "transbordos": 2,
+    "tramos": [
+     {
+      "modo": "WALK",
+      "linea": null,
+      "agencia": null,
+      "de": "START",
+      "a": "ROMA TERMINI",
+      "sale": "2027-09-14T08:45:00Z",
+      "llega": "2027-09-14T08:46:00Z"
+     },
+     {
+      "modo": "HIGHSPEED_RAIL",
+      "linea": "FR",
+      "agencia": "TRENITALIA",
+      "de": "ROMA TERMINI",
+      "a": "TORINO PORTA NUOVA",
+      "sale": "2027-09-14T08:46:00Z",
+      "llega": "2027-09-14T13:10:00Z"
+     },
+     {
+      "modo": "WALK",
+      "linea": null,
+      "agencia": null,
+      "de": "TORINO PORTA NUOVA",
+      "a": "TORINO PORTA NUOVA",
+      "sale": "2027-09-14T13:10:00Z",
+      "llega": "2027-09-14T13:12:00Z"
+     },
+     {
+      "modo": "HIGHSPEED_RAIL",
+      "linea": "FR",
+      "agencia": "TRENITALIA",
+      "de": "TORINO PORTA NUOVA",
+      "a": "MILANO ROGOREDO",
+      "sale": "2027-09-14T15:40:00Z",
+      "llega": "2027-09-14T17:02:00Z"
+     },
+     {
+      "modo": "WALK",
+      "linea": null,
+      "agencia": null,
+      "de": "MILANO ROGOREDO",
+      "a": "Milano Rogoredo",
+      "sale": "2027-09-14T17:02:00Z",
+      "llega": "2027-09-14T17:12:00Z"
+     },
+     {
+      "modo": "LONG_DISTANCE",
+      "linea": "EC",
+      "agencia": "Schweizerische Bundesbahnen SBB",
+      "de": "Milano Rogoredo",
+      "a": "Rapallo",
+      "sale": "2027-09-15T12:11:00Z",
+      "llega": "2027-09-15T14:52:00Z"
+     },
+     {
+      "modo": "WALK",
+      "linea": null,
+      "agencia": null,
+      "de": "Rapallo",
+      "a": "END",
+      "sale": "2027-09-15T14:52:00Z",
+      "llega": "2027-09-15T14:58:00Z"
+     }
+    ]
+   },
+   "mensajes": {
+    "debugOutput": {
+     "algorithm": 1,
+     "direct": 2,
+     "execute_time": 39,
+     "fares": 0,
+     "fastest_direct": 0,
+     "fp_update_prevented_by_lower_bound": 0,
+     "gpu_supported": 1,
+     "gpu_used": 1,
+     "interval_extensions": 0,
+     "lb_time": 0,
+     "n_dest_offsets": 3,
+     "n_earliest_arrival_updated_by_footpath": 0,
+     "n_earliest_arrival_updated_by_route": 0,
+     "n_earliest_trip_calls": 0,
+     "n_events_skipped_by_early_termination": 0,
+     "n_execute_bwd": 3,
+     "n_execute_fwd": 3,
+     "n_footpaths_visited": 0,
+     "n_routes_visited": 0,
+     "n_routing_time": 0,
+     "n_start_offsets": 92,
+     "n_td_dest_offsets": 0,
+     "n_td_start_offsets": 0,
+     "prepare": 4,
+     "prepare_backward_WALK": 0,
+     "prepare_forward_WALK": 3,
+     "route_update_prevented_by_lower_bound": 0,
+     "search_interval_reduction_by_early_termination": 0
+    }
+   }
+  },
+  {
+   "caso": "Entre ciudades: Génova Principe -> Turín Porta Nuova",
+   "fecha": "hoy (martes 20/10/2026)",
+   "http": 200,
+   "itinerarios": 3,
+   "directos": 0,
+   "primero": {
+    "duracion_s": 7800,
+    "inicio": "2026-10-20T08:23:00Z",
+    "fin": "2026-10-20T10:33:00Z",
+    "transbordos": 0,
+    "tramos": [
+     {
+      "modo": "WALK",
+      "linea": null,
+      "agencia": null,
+      "de": "START",
+      "a": "GENOVA PIAZZA PRINCIPE",
+      "sale": "2026-10-20T08:23:00Z",
+      "llega": "2026-10-20T08:27:00Z"
+     },
+     {
+      "modo": "REGIONAL_RAIL",
+      "linea": "RV",
+      "agencia": "TRENITALIA",
+      "de": "GENOVA PIAZZA PRINCIPE",
+      "a": "TORINO PORTA NUOVA",
+      "sale": "2026-10-20T08:27:00Z",
+      "llega": "2026-10-20T10:30:00Z"
+     },
+     {
+      "modo": "WALK",
+      "linea": null,
+      "agencia": null,
+      "de": "TORINO PORTA NUOVA",
+      "a": "END",
+      "sale": "2026-10-20T10:30:00Z",
+      "llega": "2026-10-20T10:33:00Z"
+     }
+    ]
+   },
+   "mensajes": {
+    "debugOutput": {
+     "algorithm": 1,
+     "direct": 3,
+     "execute_time": 20,
+     "fares": 0,
+     "fastest_direct": 0,
+     "fp_update_prevented_by_lower_bound": 0,
+     "gpu_supported": 1,
+     "gpu_used": 1,
+     "interval_extensions": 0,
+     "lb_time": 0,
+     "n_dest_offsets": 90,
+     "n_earliest_arrival_updated_by_footpath": 0,
+     "n_earliest_arrival_updated_by_route": 0,
+     "n_earliest_trip_calls": 0,
+     "n_events_skipped_by_early_termination": 0,
+     "n_execute_bwd": 4,
+     "n_execute_fwd": 3,
+     "n_footpaths_visited": 0,
+     "n_routes_visited": 0,
+     "n_routing_time": 0,
+     "n_start_offsets": 87,
+     "n_td_dest_offsets": 0,
+     "n_td_start_offsets": 0,
+     "prepare": 5,
+     "prepare_backward_WALK": 2,
+     "prepare_forward_WALK": 2,
+     "route_update_prevented_by_lower_bound": 0,
+     "search_interval_reduction_by_early_termination": 0
+    }
+   }
+  },
+  {
+   "caso": "Entre ciudades: Génova Principe -> Turín Porta Nuova",
+   "fecha": "setiembre 2027 (martes 14/09/2027)",
+   "http": 200,
+   "itinerarios": 3,
+   "directos": 0,
+   "primero": {
+    "duracion_s": 81600,
+    "inicio": "2027-09-14T09:43:00Z",
+    "fin": "2027-09-15T08:23:00Z",
+    "transbordos": 1,
+    "tramos": [
+     {
+      "modo": "WALK",
+      "linea": null,
+      "agencia": null,
+      "de": "START",
+      "a": "Genova P. Principe",
+      "sale": "2027-09-14T09:43:00Z",
+      "llega": "2027-09-14T09:48:00Z"
+     },
+     {
+      "modo": "LONG_DISTANCE",
+      "linea": "EC",
+      "agencia": "Schweizerische Bundesbahnen SBB",
+      "de": "Genova P. Principe",
+      "a": "Milano Rogoredo",
+      "sale": "2027-09-14T09:48:00Z",
+      "llega": "2027-09-14T11:49:00Z"
+     },
+     {
+      "modo": "WALK",
+      "linea": null,
+      "agencia": null,
+      "de": "Milano Rogoredo",
+      "a": "MILANO ROGOREDO",
+      "sale": "2027-09-14T11:49:00Z",
+      "llega": "2027-09-14T11:59:00Z"
+     },
+     {
+      "modo": "HIGHSPEED_RAIL",
+      "linea": "FR",
+      "agencia": "TRENITALIA",
+      "de": "MILANO ROGOREDO",
+      "a": "TORINO PORTA NUOVA",
+      "sale": "2027-09-15T06:56:00Z",
+      "llega": "2027-09-15T08:20:00Z"
+     },
+     {
+      "modo": "WALK",
+      "linea": null,
+      "agencia": null,
+      "de": "TORINO PORTA NUOVA",
+      "a": "END",
+      "sale": "2027-09-15T08:20:00Z",
+      "llega": "2027-09-15T08:23:00Z"
+     }
+    ]
+   },
+   "mensajes": {
+    "debugOutput": {
+     "algorithm": 1,
+     "direct": 4,
+     "execute_time": 68,
+     "fares": 0,
+     "fastest_direct": 0,
+     "fp_update_prevented_by_lower_bound": 0,
+     "gpu_supported": 1,
+     "gpu_used": 1,
+     "interval_extensions": 0,
+     "lb_time": 0,
+     "n_dest_offsets": 90,
+     "n_earliest_arrival_updated_by_footpath": 0,
+     "n_earliest_arrival_updated_by_route": 0,
+     "n_earliest_trip_calls": 0,
+     "n_events_skipped_by_early_termination": 0,
+     "n_execute_bwd": 3,
+     "n_execute_fwd": 3,
+     "n_footpaths_visited": 0,
+     "n_routes_visited": 0,
+     "n_routing_time": 0,
+     "n_start_offsets": 87,
+     "n_td_dest_offsets": 0,
+     "n_td_start_offsets": 0,
+     "prepare": 7,
+     "prepare_backward_WALK": 3,
+     "prepare_forward_WALK": 4,
+     "route_update_prevented_by_lower_bound": 0,
+     "search_interval_reduction_by_early_termination": 0
+    }
+   }
+  }
+ ]
+}

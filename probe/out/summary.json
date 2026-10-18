@@ -38,7 +38,7 @@
   "stops": 8328,
   "trips": 166211,
   "stop_times": 5008354,
-  "seconds": 6.7
+  "seconds": 5.7
  },
  "torino_gtt": {
   "url": "https://www.gtt.to.it/open_data/gtt_gtfs.zip",
@@ -80,6 +80,18 @@
     "feed_contact_url": "http://www.gtt.to.it/cms/dialoga/reclami"
    }
   ],
+  "calendar_keys": [
+   "service_id",
+   "monday",
+   "tuesday",
+   "wednesday",
+   "thursday",
+   "friday",
+   "saturday",
+   "sunday",
+   "start_date",
+   "end_date"
+  ],
   "calendar": {
    "services": 271,
    "min_start": "20261016",
@@ -106,7 +118,7 @@
   "stops": 7052,
   "trips": 32946,
   "stop_times": 977405,
-  "seconds": 4.3
+  "seconds": 4.0
  },
  "genova_amt": {
   "url": "https://www.amt.genova.it/amt/GTFS/GTFS_AMT_GENOVA.zip",
@@ -144,7 +156,7 @@
   "stops": 2777,
   "trips": 38713,
   "stop_times": 763255,
-  "seconds": 15.9
+  "seconds": 12.5
  },
  "milano_atm": {
   "url": "https://dati.comune.milano.it/gtfs.zip",
@@ -194,7 +206,7 @@
   "stops": 4897,
   "trips": 175790,
   "stop_times": 4116522,
-  "seconds": 5.3
+  "seconds": 4.4
  },
  "trenord": {
   "url": "https://www.dati.lombardia.it/download/3z4k-mxz9/application%2Fzip",
@@ -236,7 +248,7 @@
   "stops": 566,
   "trips": 8470,
   "stop_times": 90553,
-  "seconds": 3.0
+  "seconds": 2.8
  },
  "actv_navigazione": {
   "url": "http://actv.avmspa.it/sites/default/files/attachments/opendata/navigazione/actv_nav.zip",
@@ -271,6 +283,18 @@
     "feed_contact_url": ""
    }
   ],
+  "calendar_keys": [
+   "service_id",
+   "monday",
+   "tuesday",
+   "wednesday",
+   "thursday",
+   "friday",
+   "saturday",
+   "sunday",
+   "start_date",
+   "end_date"
+  ],
   "calendar": {
    "services": 6,
    "min_start": "20261005",
@@ -291,12 +315,12 @@
   "stops": 152,
   "trips": 24112,
   "stop_times": 260615,
-  "seconds": 2.2
+  "seconds": 2.9
  },
  "sevilla_tussam_nap1567": {
   "url": "https://nap.transportes.gob.es/api/Fichero/download/1567",
   "error": "HTTPError: HTTP Error 401: Unauthorized",
-  "seconds": 0.5
+  "seconds": 0.6
  },
  "sevilla_metro_nap1583": {
   "url": "https://nap.transportes.gob.es/api/Fichero/download/1583",
@@ -306,7 +330,7 @@
  "granada_metro_nap1568": {
   "url": "https://nap.transportes.gob.es/api/Fichero/download/1568",
   "error": "HTTPError: HTTP Error 401: Unauthorized",
-  "seconds": 0.5
+  "seconds": 0.4
  },
  "cordoba_aucorsa_nap1573": {
   "url": "https://nap.transportes.gob.es/api/Fichero/download/1573",
@@ -323,9 +347,9 @@
   "status": 200,
   "final_url": "https://ssl.renfe.com/gtransit/Fichero_AV_LD/google_transit.zip",
   "content_type": "application/zip",
-  "last_modified": "Sat, 17 Oct 2026 23:06:56 GMT",
+  "last_modified": "Sat, 17 Oct 2026 23:06:55 GMT",
   "bytes": 880154,
-  "sha256": "9480c28daccd4169b118cb881e24e54c081d8849e4e6657325ce431c3ad4d950",
+  "sha256": "0ef3ff25561bda9dd158d09e23315dfed0052f08c9196557619c90ef58dc75a3",
   "files": [
    "agency.txt",
    "calendar.txt",
@@ -336,7 +360,38 @@
    "trips.txt"
   ],
   "feed_info": null,
-  "error": "ValueError: max() iterable argument is empty",
+  "calendar_keys": [
+   "service_id",
+   "monday",
+   "tuesday",
+   "wednesday",
+   "thursday",
+   "friday",
+   "saturday",
+   "sunday",
+   "start_date",
+   "end_date                                                                                                                                                                                                                                                                       "
+  ],
+  "calendar": {
+   "services": 8615,
+   "min_start": "20261017",
+   "max_end": "20270929"
+  },
+  "calendar_dates": {
+   "rows": 34390,
+   "min": "20261018",
+   "max": "20270124"
+  },
+  "agencies": [
+   "RENFE OPERADORA"
+  ],
+  "route_types": {
+   "2": 658
+  },
+  "routes": 658,
+  "stops": 1006,
+  "trips": 8615,
+  "stop_times": 68430,
   "seconds": 3.0
  },
  "renfe_cercanias": {
@@ -358,7 +413,34 @@
    "trips.txt"
   ],
   "feed_info": null,
-  "error": "ValueError: max() iterable argument is empty",
-  "seconds": 13.1
+  "calendar_keys": [
+   "service_id",
+   "monday",
+   "tuesday",
+   "wednesday",
+   "thursday",
+   "friday",
+   "saturday",
+   "sunday",
+   "start_date",
+   "end_date                                                               "
+  ],
+  "calendar": {
+   "services": 450,
+   "min_start": "20261017",
+   "max_end": "20261115"
+  },
+  "agencies": [
+   "Renfe Cercanias"
+  ],
+  "route_types": {
+   "2": 650,
+   "3": 131
+  },
+  "routes": 781,
+  "stops": 1151,
+  "trips": 136594,
+  "stop_times": 1869059,
+  "seconds": 14.1
  }
 }
