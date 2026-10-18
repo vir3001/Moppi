@@ -1,0 +1,364 @@
+{
+ "roma_romamobilita": {
+  "url": "https://romamobilita.it/sites/default/files/rome_static_gtfs.zip",
+  "status": 200,
+  "final_url": "https://romamobilita.it/wp-content/uploads/shared/rome_static_gtfs.zip",
+  "content_type": "application/zip",
+  "last_modified": "Sat, 17 Oct 2026 18:33:48 GMT",
+  "bytes": 46469704,
+  "sha256": "5c9941ac62abae846b2e18505ab9a28fa552c4841d0c598b761989a1fb8c2951",
+  "files": [
+   "agency.txt",
+   "calendar_dates.txt",
+   "routes.txt",
+   "shapes.txt",
+   "stop_times.txt",
+   "stops.txt",
+   "trips.txt"
+  ],
+  "feed_info": null,
+  "calendar_dates": {
+   "rows": 2448,
+   "min": "20261007",
+   "max": "20261206"
+  },
+  "agencies": [
+   "Atac",
+   "TROIANI",
+   "TUSCIA",
+   "BIS",
+   "ATR Mobility"
+  ],
+  "route_types": {
+   "3": 430,
+   "0": 5,
+   "1": 4
+  },
+  "routes": 439,
+  "stops": 8328,
+  "trips": 166211,
+  "stop_times": 5008354,
+  "seconds": 6.7
+ },
+ "torino_gtt": {
+  "url": "https://www.gtt.to.it/open_data/gtt_gtfs.zip",
+  "status": 200,
+  "final_url": "https://www.gtt.to.it/open_data/gtt_gtfs.zip",
+  "content_type": "application/zip",
+  "last_modified": "Sat, 17 Oct 2026 00:49:52 GMT",
+  "bytes": 12422923,
+  "sha256": "ec4b4121388a4ade7fdb9e315f4a105f10f7a706bbc199ed1aceabf3ad0d3183",
+  "files": [
+   "agency.txt",
+   "calendar.txt",
+   "calendar_dates.txt",
+   "fare_attributes.txt",
+   "fare_rules.txt",
+   "feed_info.txt",
+   "routes.txt",
+   "shapes.txt",
+   "stop_attributes.txt",
+   "stop_times.txt",
+   "stops.txt",
+   "timetable_pages.txt",
+   "timetable_stop_order.txt",
+   "timetables.txt",
+   "trips.txt",
+   "trips_booking.txt",
+   "vehicle_categories.txt",
+   "vehicles.txt"
+  ],
+  "feed_info": [
+   {
+    "feed_publisher_name": "Gruppo Torinese Trasporti S.p.A",
+    "feed_publisher_url": "http://www.gtt.to.it",
+    "feed_lang": "it",
+    "feed_start_date": "20261016",
+    "feed_end_date": "20270131",
+    "feed_version": "20261017",
+    "feed_contact_email": "campagna.a@gtt.to.it",
+    "feed_contact_url": "http://www.gtt.to.it/cms/dialoga/reclami"
+   }
+  ],
+  "calendar": {
+   "services": 271,
+   "min_start": "20261016",
+   "max_end": "20270131"
+  },
+  "calendar_dates": {
+   "rows": 11879,
+   "min": "20261016",
+   "max": "20270131"
+  },
+  "agencies": [
+   "GTT Servizio Extraurbano",
+   "GTT Servizio Ferroviario",
+   "GTT Servizi Turistici",
+   "GTT Servizio Urbano"
+  ],
+  "route_types": {
+   "1": 1,
+   "0": 9,
+   "3": 206,
+   "7": 1
+  },
+  "routes": 217,
+  "stops": 7052,
+  "trips": 32946,
+  "stop_times": 977405,
+  "seconds": 4.3
+ },
+ "genova_amt": {
+  "url": "https://www.amt.genova.it/amt/GTFS/GTFS_AMT_GENOVA.zip",
+  "status": 200,
+  "final_url": "https://www.amt.genova.it/amt/GTFS/GTFS_AMT_GENOVA.zip",
+  "content_type": "application/zip",
+  "last_modified": "Sun, 11 Oct 2026 04:18:34 GMT",
+  "bytes": 5366131,
+  "sha256": "ce6980435e870959d282f872e1b0825c97ba4d8650c021ad156854f4829111ad",
+  "files": [
+   "agency.txt",
+   "calendar_dates.txt",
+   "routes.txt",
+   "stop_times.txt",
+   "stops.txt",
+   "trips.txt"
+  ],
+  "feed_info": null,
+  "calendar_dates": {
+   "rows": 54,
+   "min": "20261012",
+   "max": "20261019"
+  },
+  "agencies": [
+   "AMT Genova"
+  ],
+  "route_types": {
+   "3": 150,
+   "": 11,
+   "2": 1,
+   "7": 2,
+   "1": 1
+  },
+  "routes": 165,
+  "stops": 2777,
+  "trips": 38713,
+  "stop_times": 763255,
+  "seconds": 15.9
+ },
+ "milano_atm": {
+  "url": "https://dati.comune.milano.it/gtfs.zip",
+  "status": 200,
+  "final_url": "https://dati.comune.milano.it/gtfs.zip",
+  "content_type": "application/zip",
+  "last_modified": "Mon, 21 Sep 2026 09:05:23 GMT",
+  "bytes": 34656635,
+  "sha256": "f0959217d549f278d59f4ef60bdb5bce8b6fc3dea2efa84c9ff7f213973ea1cc",
+  "files": [
+   "agency.txt",
+   "calendar.txt",
+   "calendar_dates.txt",
+   "feed_info.txt",
+   "routes.txt",
+   "shapes.txt",
+   "stop_times.txt",
+   "stops.txt",
+   "transfers.txt",
+   "trips.txt"
+  ],
+  "feed_info": [
+   {
+    "feed_publisher_name": "AMAT_Milan_feed",
+    "feed_publisher_url": "http://www.amat-mi.it",
+    "feed_lang": "it",
+    "feed_start_date": "20260914",
+    "feed_version": "423",
+    "surface_end_date": "20261002",
+    "mm_end_date": "20261015"
+   }
+  ],
+  "calendar_dates": {
+   "rows": 2768,
+   "min": "20260914",
+   "max": "20261019"
+  },
+  "agencies": [
+   "ATM"
+  ],
+  "route_types": {
+   "0": 17,
+   "3": 144,
+   "1": 5
+  },
+  "routes": 166,
+  "stops": 4897,
+  "trips": 175790,
+  "stop_times": 4116522,
+  "seconds": 5.3
+ },
+ "trenord": {
+  "url": "https://www.dati.lombardia.it/download/3z4k-mxz9/application%2Fzip",
+  "status": 200,
+  "final_url": "https://www.dati.lombardia.it/api/views/3z4k-mxz9/files/c552bb7c-9f01-41a7-8b41-b131416c2e0a?filename=trenord_gtfs.zip",
+  "content_type": "application/octet-stream",
+  "last_modified": null,
+  "bytes": 1660043,
+  "sha256": "b4296f145b42ccb35c26085470ff4b3fd5dffe533251c0aab312312a73820ad6",
+  "files": [
+   "agency.txt",
+   "calendar_dates.txt",
+   "feed_info.txt",
+   "routes.txt",
+   "stop_times.txt",
+   "stops.txt",
+   "trips.txt"
+  ],
+  "feed_info": [
+   {
+    "feed_publisher_name": "Trenord",
+    "feed_publisher_url": "https://trenord.it/",
+    "feed_lang": "it-IT"
+   }
+  ],
+  "calendar_dates": {
+   "rows": 385197,
+   "min": "20260726",
+   "max": "20261212"
+  },
+  "agencies": [
+   "Trenord"
+  ],
+  "route_types": {
+   "2": 60,
+   "3": 3
+  },
+  "routes": 63,
+  "stops": 566,
+  "trips": 8470,
+  "stop_times": 90553,
+  "seconds": 3.0
+ },
+ "actv_navigazione": {
+  "url": "http://actv.avmspa.it/sites/default/files/attachments/opendata/navigazione/actv_nav.zip",
+  "status": 200,
+  "final_url": "https://actv.avmspa.it/sites/default/files/attachments/opendata/navigazione/actv_nav.zip",
+  "content_type": "application/zip",
+  "last_modified": "Mon, 05 Oct 2026 18:00:09 GMT",
+  "bytes": 3023795,
+  "sha256": "9ab89e25c8e8b7793426fe765d8b96905086d1851ca58f78aa304a612f043729",
+  "files": [
+   "agency.txt",
+   "calendar.txt",
+   "calendar_dates.txt",
+   "feed_info.txt",
+   "routes.txt",
+   "shapes.txt",
+   "stop_times.txt",
+   "stops.txt",
+   "trips.txt"
+  ],
+  "feed_info": [
+   {
+    "feed_id": "0",
+    "feed_publisher_name": "ACTV S.p.a",
+    "feed_publisher_url": "http://www.actv.it/",
+    "feed_lang": "IT",
+    "feed_start_date": "20261005",
+    "feed_end_date": "20271004",
+    "feed_version": "",
+    "default_lang": "",
+    "feed_contact_email": "",
+    "feed_contact_url": ""
+   }
+  ],
+  "calendar": {
+   "services": 6,
+   "min_start": "20261005",
+   "max_end": "20271004"
+  },
+  "calendar_dates": {
+   "rows": 36,
+   "min": "20261019",
+   "max": "20271004"
+  },
+  "agencies": [
+   "ACTVs.p.a"
+  ],
+  "route_types": {
+   "4": 24
+  },
+  "routes": 24,
+  "stops": 152,
+  "trips": 24112,
+  "stop_times": 260615,
+  "seconds": 2.2
+ },
+ "sevilla_tussam_nap1567": {
+  "url": "https://nap.transportes.gob.es/api/Fichero/download/1567",
+  "error": "HTTPError: HTTP Error 401: Unauthorized",
+  "seconds": 0.5
+ },
+ "sevilla_metro_nap1583": {
+  "url": "https://nap.transportes.gob.es/api/Fichero/download/1583",
+  "error": "HTTPError: HTTP Error 401: Unauthorized",
+  "seconds": 0.4
+ },
+ "granada_metro_nap1568": {
+  "url": "https://nap.transportes.gob.es/api/Fichero/download/1568",
+  "error": "HTTPError: HTTP Error 401: Unauthorized",
+  "seconds": 0.5
+ },
+ "cordoba_aucorsa_nap1573": {
+  "url": "https://nap.transportes.gob.es/api/Fichero/download/1573",
+  "error": "HTTPError: HTTP Error 401: Unauthorized",
+  "seconds": 0.4
+ },
+ "andalucia_metropolitano_nap1562": {
+  "url": "https://nap.transportes.gob.es/api/Fichero/download/1562",
+  "error": "HTTPError: HTTP Error 401: Unauthorized",
+  "seconds": 0.4
+ },
+ "renfe_av_ld_md": {
+  "url": "https://ssl.renfe.com/gtransit/Fichero_AV_LD/google_transit.zip",
+  "status": 200,
+  "final_url": "https://ssl.renfe.com/gtransit/Fichero_AV_LD/google_transit.zip",
+  "content_type": "application/zip",
+  "last_modified": "Sat, 17 Oct 2026 23:06:56 GMT",
+  "bytes": 880154,
+  "sha256": "9480c28daccd4169b118cb881e24e54c081d8849e4e6657325ce431c3ad4d950",
+  "files": [
+   "agency.txt",
+   "calendar.txt",
+   "calendar_dates.txt",
+   "routes.txt",
+   "stop_times.txt",
+   "stops.txt",
+   "trips.txt"
+  ],
+  "feed_info": null,
+  "error": "ValueError: max() iterable argument is empty",
+  "seconds": 3.0
+ },
+ "renfe_cercanias": {
+  "url": "https://ssl.renfe.com/ftransit/Fichero_CER_FOMENTO/fomento_transit.zip",
+  "status": 200,
+  "final_url": "https://ssl.renfe.com/ftransit/Fichero_CER_FOMENTO/fomento_transit.zip",
+  "content_type": "application/zip",
+  "last_modified": "Sat, 17 Oct 2026 02:10:28 GMT",
+  "bytes": 16163477,
+  "sha256": "23ab94a7d8292fe43d875a9141df3a17f56f68ae77aa8f507ea2afa95fb6cefc",
+  "files": [
+   "agency.txt",
+   "calendar.txt",
+   "routes.txt",
+   "shapes.txt",
+   "stop_times.txt",
+   "stops.txt",
+   "transfers.txt",
+   "trips.txt"
+  ],
+  "feed_info": null,
+  "error": "ValueError: max() iterable argument is empty",
+  "seconds": 13.1
+ }
+}
