@@ -39,12 +39,16 @@ for key, url in FEEDS:
             z = zipfile.ZipFile(io.BytesIO(data)); info["files"] = sorted(z.namelist())
             fi = rows(z, "feed_info.txt"); info["feed_info"] = fi[:1] if fi else None
             cal = rows(z, "calendar.txt")
+            def col(r, suffix):
+                for k, v in r.items():
+                    if k and k.strip().lstrip("\ufeff").endswith(suffix) and v: return v.strip()
             if cal:
-                s = [c["start_date"] for c in cal if c.get("start_date")]; e = [c["end_date"] for c in cal if c.get("end_date")]
-                info["calendar"] = {"services": len(cal), "min_start": min(s), "max_end": max(e)}
+                info["calendar_keys"] = list(cal[0].keys())
+                s = [col(c, "start_date") for c in cal if col(c, "start_date")]; e = [col(c, "end_date") for c in cal if col(c, "end_date")]
+                info["calendar"] = {"services": len(cal), "min_start": min(s) if s else None, "max_end": max(e) if e else None}
             cd = rows(z, "calendar_dates.txt")
             if cd:
-                d = [c["date"] for c in cd if c.get("date")]; info["calendar_dates"] = {"rows": len(cd), "min": min(d), "max": max(d)}
+                d = [col(c, "date") for c in cd if col(c, "date")]; info["calendar_dates"] = {"rows": len(cd), "min": min(d) if d else None, "max": max(d) if d else None}
             ag = rows(z, "agency.txt"); info["agencies"] = [a.get("agency_name") for a in (ag or [])][:15]
             rt = rows(z, "routes.txt")
             if rt:

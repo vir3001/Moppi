@@ -11,6 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: python3 probe/probe.py
+      - run: python3 probe/probe2.py
       - run: |
           git config user.name "github-actions"
           git config user.email "actions@users.noreply.github.com"
