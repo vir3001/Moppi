@@ -192,6 +192,7 @@
         <section class="settings-group"><div class="toggle"><div><strong>Apoyo multifuentе</strong><p class="hint">TripGo y Google agregan transbordos, validación, geometría y métricas. El GTFS oficial conserva el universo de líneas directas.</p></div><input id="multiSourceToggle" type="checkbox" checked aria-label="Activar apoyo de planners externos"></div></section>
         <section class="settings-group"><div class="toggle"><div><strong>Simular modo sin conexión</strong><p class="hint">Agenda y datos siguen disponibles; rutas online quedan pausadas.</p></div><input id="offlineToggle" type="checkbox" aria-label="Simular modo sin conexión"></div></section>
         <section class="settings-group" id="installAppGroup"><strong>Instalar la app</strong><p class="hint" id="pwaStatus">La instalación se habilita al abrir esta versión desde HTTPS.</p><div class="action-row"><button class="secondary-action" id="installApp" hidden>Instalar en este teléfono</button></div></section>
+        <section class="settings-group"><strong>Versión de Moppi</strong><p class="hint" id="appVersionStatus">Versión actual: …</p><div class="action-row"><button class="secondary-action" id="checkUpdate" type="button">Buscar versión nueva</button></div><p class="hint" id="appUpdateStatus" aria-live="polite"></p></section>
         <section class="settings-group"><strong>Diagnóstico compacto</strong><p class="hint" id="diagnosticSummary">Todavía no se calculó una ruta.</p><div class="action-row"><button class="secondary-action" id="downloadDiagnostic">Descargar corrida actual</button><button class="secondary-action" id="runSelfTests">Verificar motor</button></div></section>
         <section class="settings-group"><strong>Proveedores activos</strong><div id="providerInventory" class="hint"></div></section>
       </div>
@@ -371,7 +372,7 @@ const CatalogStore={dbName:'moppi',storeName:'catalogs',
   async all(){return unique([...this.embedded(),...await this.stored()],item=>item.id)},
   async importCatalogs(items){const valid=list(items).filter(item=>this.valid(item));if(!valid.length)throw new ProviderError('INVALID_CATALOG','El archivo no trae horarios oficiales válidos.');let db;try{db=await this.open()}catch{throw new ProviderError('STORAGE','Este navegador no permite guardar horarios oficiales.')}await new Promise((resolve,reject)=>{const tx=db.transaction(this.storeName,'readwrite');for(const item of valid)tx.objectStore(this.storeName).put(JSON.parse(JSON.stringify(item)));tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||new Error('IDB'))}).catch(()=>{throw new ProviderError('STORAGE','No hubo lugar para guardar los horarios oficiales en este teléfono.')});return{count:valid.length,operators:unique(valid.map(item=>clean(item.operator)||clean(item.label)||'operador'))}}};
 const AppConfig=Object.freeze({
-  version:'V1.9.11_LLEGADA',get timeZone(){return RuntimeZone.value||deviceTimeZone()},locale:'es-UY',tripStorageKey:'moppi.trips.v1',trip:{departureMarginMinutes:20},serviceDate:'2026-09-13',
+  version:'V1.9.12_AVISO_VERSION',get timeZone(){return RuntimeZone.value||deviceTimeZone()},locale:'es-UY',tripStorageKey:'moppi.trips.v1',trip:{departureMarginMinutes:20},serviceDate:'2026-09-13',
   mapillary:{get clientToken(){return KeyStore.get('mapillary')},searchRadiusMeters:35,maxCorridorMeters:25,maxCurrentMeters:220,maxCurrentNoGeometryMeters:60,limit:60,maxImages:5,minSpacingMeters:10,queryTimeoutMs:9000,imageTimeoutMs:15000},
   tripgo:{get apiKey(){return KeyStore.get('tripgo')},attribution:'Powered by TripGo'},providerDates:{maxFutureDays:28},
   discovery:{originRadiusKm:.65,destinationRadiusKm:.8,maxOriginStops:30,maxDestinationStops:30,horizonMinutes:120,walkingMetersPerSecond:1.15,walkDetourFactor:1.25,boardingBufferSeconds:35,walkMatrixBatchSize:25,requestTimeoutMs:14000},
@@ -2537,6 +2538,13 @@ MoppiShare.start(app);
 .due-amount{white-space:nowrap;text-align:right;font-size:15px}
 .row-parts{display:block;margin-top:2px;font-size:12.5px;line-height:1.35;color:var(--muted,#6c6963);overflow-wrap:anywhere}
 </style>
+<style id="updateV1912">
+.update-banner{position:fixed;left:12px;right:12px;bottom:calc(86px + env(safe-area-inset-bottom,0px));z-index:60;display:flex;align-items:center;gap:10px;padding:11px 12px 11px 14px;border-radius:18px;background:var(--forest,#18312d);color:#fff;box-shadow:0 10px 28px rgba(24,49,45,.28);font-size:14px;font-weight:700;line-height:1.3}
+.update-banner[hidden]{display:none}
+.update-banner span{flex:1;min-width:0}
+.update-banner .mini-action{background:#fff;color:var(--forest,#18312d);white-space:nowrap}
+.update-banner .update-close{flex:0 0 auto;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.16);color:#fff;font-size:20px;line-height:1}
+</style>
 <style id="skinSalvia">
 /* MOPPI · SKIN «SALVIA LUMINOSA» — capa visual (solo CSS). No cambia datos, lógica ni funciones.
    Todo el color sale de las variables de abajo: otro tema = otro bloque de variables. */
@@ -2752,6 +2760,81 @@ const app=window.__VIAJE2027_APP__;
 if(app&&typeof app.show==='function'){const show=app.show.bind(app);app.show=function(name){const result=show(name);try{Mascot.apply();if(name==='settings')Mascot.renderChoices()}catch{}return result}}
 document.getElementById('mascotChoices')?.addEventListener('click',event=>{const button=event.target.closest('[data-mascot]');if(button)Mascot.choose(button.dataset.mascot)});
 Mascot.renderChoices();Mascot.apply();
+})();
+</script>
+<script id="moppiUpdate">
+/* Moppi · aviso de versión nueva (V1.9.12).
+   Una app instalada puede quedar abierta días con la página vieja en memoria y no enterarse de que hay una versión nueva.
+   - Al volver a la app, o al recuperar internet (como mucho una vez cada 5 minutos), y desde Ajustes › Versión de Moppi, compara
+     la versión que está corriendo con la de la página publicada.
+   - Si es otra, muestra un aviso con «Actualizar» (recarga la página). Sin conexión o con error no muestra nada.
+   - No cambia datos, rutas ni funciones. */
+(()=>{'use strict';
+const GAP=5*60*1000,RE=/\bversion:'(V\d+\.\d+\.\d+[A-Za-z0-9_]*)'/;
+const $=id=>document.getElementById(id);
+const running=()=>{try{return String(window.__VIAJE2027_REBUILD__&&window.__VIAJE2027_REBUILD__.version||'')}catch{return''}};
+const short=v=>String(v||'').split('_')[0];
+const state={last:Date.now(),busy:false,found:null,dismissed:null};
+let banner=null;
+function showBanner(version){
+  if(!banner){
+    banner=document.createElement('div');banner.id='updateBanner';banner.className='update-banner';banner.setAttribute('role','status');banner.hidden=true;
+    banner.innerHTML='<span id="updateBannerText"></span><button type="button" class="mini-action" id="updateNow">Actualizar</button><button type="button" class="update-close" id="updateClose" aria-label="Cerrar aviso">×</button>';
+    document.body.appendChild(banner);
+    $('updateNow').addEventListener('click',()=>{try{location.reload()}catch{}});
+    $('updateClose').addEventListener('click',()=>{banner.hidden=true;state.dismissed=state.found});
+  }
+  $('updateBannerText').textContent='Hay una versión nueva de Moppi ('+short(version)+').';
+  banner.hidden=false;
+}
+async function check(options){
+  const manual=!!(options&&options.manual);
+  if(state.busy)return{status:'busy'};
+  state.busy=true;
+  try{
+    if(navigator.onLine===false)return{status:'offline'};
+    const mine=running();
+    if(!mine)return{status:'error'};
+    const response=await fetch(location.href.split('#')[0],{cache:'no-cache'});
+    if(!response.ok)return{status:'error'};
+    const match=RE.exec(await response.text());
+    if(!match)return{status:'error'};
+    const remote=match[1];
+    if(remote===mine){state.found=null;if(banner)banner.hidden=true;return{status:'current',version:mine}}
+    state.found=remote;
+    if(manual||state.dismissed!==remote)showBanner(remote);
+    return{status:'newer',version:remote}
+  }catch{return{status:'error'}}
+  finally{state.busy=false}
+}
+function maybe(force){
+  if(state.busy)return;
+  if(!force&&Date.now()-state.last<GAP)return;
+  state.last=Date.now();check({});
+}
+async function manualCheck(){
+  const status=$('appUpdateStatus'),button=$('checkUpdate');
+  if(!status||!button)return;
+  button.disabled=true;status.textContent='Buscando…';
+  const result=await check({manual:true});
+  status.textContent=result.status==='current'?'Tienes la última versión.'
+    :result.status==='newer'?'Hay una versión nueva ('+short(result.version)+'). Toca «Actualizar» en el aviso.'
+    :result.status==='offline'?'Sin conexión: no se pudo buscar.'
+    :result.status==='busy'?'Ya se está buscando; prueba de nuevo en unos segundos.'
+    :'No se pudo buscar ahora. Prueba de nuevo más tarde.';
+  button.disabled=false;
+}
+function init(){
+  const label=$('appVersionStatus');
+  if(label)label.textContent='Versión actual: '+(short(running())||'desconocida')+'.';
+  const button=$('checkUpdate');
+  if(button&&!button.dataset.bound){button.dataset.bound='1';button.addEventListener('click',manualCheck)}
+}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')maybe(false)});
+window.addEventListener('online',()=>maybe(true));
+window.addEventListener('pageshow',event=>{if(event.persisted)maybe(false)});
+window.__MOPPI_UPDATE__=Object.freeze({check,state:()=>({last:state.last,busy:state.busy,found:state.found,dismissed:state.dismissed})});
+init();
 })();
 </script>
 </body>
